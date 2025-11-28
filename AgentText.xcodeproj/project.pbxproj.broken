@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		19CBB5212ED939F2005A15DA /* AgentTextApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC83322ED6CE7000634E5F /* AgentTextApp.swift */; };
+		19CBB5302ED9500A005A15DA /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 19CBB52F2ED9500A005A15DA /* GoogleService-Info.plist */; };
 		D8BC83C32ED7C76C00634E5F /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = D8BC83C22ED7C76C00634E5F /* FirebaseAuth */; };
 		D8BC83C52ED7C76C00634E5F /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = D8BC83C42ED7C76C00634E5F /* FirebaseCore */; };
 		D8BC83C72ED7C76C00634E5F /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = D8BC83C62ED7C76C00634E5F /* FirebaseDatabase */; };
@@ -31,6 +32,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		19CBB52F2ED9500A005A15DA /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "AgentText/GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
 		D8BC831F2ED6CDC700634E5F /* AgentText.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AgentText.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8BC83322ED6CE7000634E5F /* AgentTextApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AgentTextApp.swift; path = AgentText/AgentTextApp.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -41,9 +43,11 @@
 			membershipExceptions = (
 				"APIServer/node_modules/@rollup/rollup-darwin-arm64/rollup.darwin-arm64.node.backup.disabled",
 				"APIServer/node_modules/@rollup/rollup-darwin-arm64/rollup.darwin-arm64.node.disabled",
+				"APIServer/node_modules/better-sqlite3/build/Release/better_sqlite3.node.disabled",
 				"APIServer/node_modules/better-sqlite3/deps/sqlite3/sqlite3.c",
 				"APIServer/node_modules/better-sqlite3/deps/test_extension.c",
 				"APIServer/node_modules/better-sqlite3/src/better_sqlite3.cpp",
+				"APIServer/node_modules/fsevents/fsevents.node.disabled",
 			);
 			target = D8BC831E2ED6CDC700634E5F /* AgentText */;
 		};
@@ -106,6 +110,7 @@
 		D8BC835D2ED7AE8000634E5F /* Recovered References */ = {
 			isa = PBXGroup;
 			children = (
+				19CBB52F2ED9500A005A15DA /* GoogleService-Info.plist */,
 				D8BC83322ED6CE7000634E5F /* AgentTextApp.swift */,
 			);
 			name = "Recovered References";
@@ -120,6 +125,7 @@
 			buildPhases = (
 				19CBB50E2ED939A8005A15DA /* Sources */,
 				D8BC831C2ED6CDC700634E5F /* Frameworks */,
+				19CBB52E2ED94FF5005A15DA /* Resources */,
 				19CBED642ED9422F005A15DA /* Embed Libraries */,
 				19CBB5252ED93FFF005A15DA /* Fix Dylib Paths */,
 			);
@@ -180,6 +186,17 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		19CBB52E2ED94FF5005A15DA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				19CBB5302ED9500A005A15DA /* GoogleService-Info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
 		19CBB5252ED93FFF005A15DA /* Fix Dylib Paths */ = {

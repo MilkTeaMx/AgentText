@@ -9,6 +9,7 @@ struct LoginView: View {
     @State private var password = ""
     @State private var macUsername = ""
     @State private var email = ""
+    @State private var isHoveredButton = false
     @FocusState private var focusedField: Field?
     
     init(onLogin: @escaping () -> Void = {}, onShowSignIn: @escaping () -> Void = {}) {
@@ -30,206 +31,187 @@ struct LoginView: View {
         isValidEmail(email)
     }
     
+    private var isFormValid: Bool {
+        !firstName.isEmpty && !lastName.isEmpty && !password.isEmpty && isEmailFieldValid
+    }
+    
     var body: some View {
         ZStack {
-            // Dark background
-            Color(red: 0.1, green: 0.1, blue: 0.12)
-                .ignoresSafeArea()
+            // Animated dark background
+            AnimatedBackground()
             
             // Main card with luminescent outline
             LuminescentCard {
                 VStack(spacing: 0) {
                 // Header with logo
-                VStack(spacing: 16) {
-                    LogoView()
+                VStack(spacing: 20) {
+                    LogoView(size: 72)
                     
-                    VStack(spacing: 8) {
+                    VStack(spacing: 10) {
                         Text("Create your account")
-                            .font(.system(size: 24, weight: .bold))
-                            .foregroundColor(.white)
+                            .font(.system(size: 28, weight: .bold))
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [.white, Color(white: 0.85)],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
                         
                         Text("Welcome! Please fill in the details to get started.")
                             .font(.system(size: 14))
-                            .foregroundColor(.gray)
+                            .foregroundColor(Color(white: 0.5))
                             .multilineTextAlignment(.center)
                     }
                 }
-                .padding(.top, 40)
-                .padding(.bottom, 32)
+                .padding(.top, 48)
+                .padding(.bottom, 36)
                 
                 // Mac Username display
                 if !macUsername.isEmpty {
-                    HStack {
+                    HStack(spacing: 12) {
                         Image(systemName: "person.circle.fill")
-                            .font(.system(size: 18))
-                            .foregroundColor(.white)
+                            .font(.system(size: 20))
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [.white, Color(white: 0.7)],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
                         Text(macUsername)
                             .font(.system(size: 15, weight: .medium))
                             .foregroundColor(.white)
                     }
                     .frame(maxWidth: .infinity)
-                    .frame(height: 48)
+                    .frame(height: 52)
                     .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.white.opacity(0.1))
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.white.opacity(0.04))
                             .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
                             )
                     )
-                    .padding(.horizontal, 32)
-                    .padding(.bottom, 24)
+                    .padding(.horizontal, 36)
+                    .padding(.bottom, 28)
                 }
                 
-                // Separator
-                HStack {
-                    Rectangle()
-                        .fill(Color.white.opacity(0.2))
-                        .frame(height: 1)
-                }
-                .padding(.horizontal, 32)
-                .padding(.bottom, 24)
+                // Glowing Divider
+                GlowingDivider()
+                    .padding(.horizontal, 36)
+                    .padding(.bottom, 28)
                 
                 // Form fields
-                VStack(spacing: 16) {
-                    // Email field (always show - required for Firebase)
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Email")
-                            .font(.system(size: 12))
-                            .foregroundColor(.gray)
-                        TextField("Enter your email", text: $email)
-                            .textFieldStyle(.plain)
-                            .padding(12)
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color.white.opacity(0.05))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .stroke(focusedField == .email ? Color.white.opacity(0.3) : Color.white.opacity(0.1), lineWidth: 1)
-                                    )
-                            )
-                            .foregroundColor(.white)
-                            .focused($focusedField, equals: .email)
-                            .onSubmit {
-                                focusedField = .firstName
-                            }
-                    }
+                VStack(spacing: 20) {
+                    // Email field
+                    ModernTextField(
+                        title: "EMAIL",
+                        placeholder: "Enter your email",
+                        text: $email,
+                        isFocused: focusedField == .email
+                    )
+                    .focused($focusedField, equals: .email)
+                    .onSubmit { focusedField = .firstName }
                     
                     // First Name and Last Name side by side
-                    HStack(spacing: 12) {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("First name")
-                                .font(.system(size: 12))
-                                .foregroundColor(.gray)
-                            TextField("First name", text: $firstName)
-                                .textFieldStyle(.plain)
-                                .padding(12)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .fill(Color.white.opacity(0.05))
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 8)
-                                                .stroke(focusedField == .firstName ? Color.white.opacity(0.3) : Color.white.opacity(0.1), lineWidth: 1)
-                                        )
-                                )
-                                .foregroundColor(.white)
-                                .focused($focusedField, equals: .firstName)
-                                .onSubmit {
-                                    focusedField = .lastName
-                                }
-                        }
+                    HStack(spacing: 16) {
+                        ModernTextField(
+                            title: "FIRST NAME",
+                            placeholder: "First name",
+                            text: $firstName,
+                            isFocused: focusedField == .firstName
+                        )
+                        .focused($focusedField, equals: .firstName)
+                        .onSubmit { focusedField = .lastName }
                         
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Last name")
-                                .font(.system(size: 12))
-                                .foregroundColor(.gray)
-                            TextField("Last name", text: $lastName)
-                                .textFieldStyle(.plain)
-                                .padding(12)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .fill(Color.white.opacity(0.05))
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 8)
-                                                .stroke(focusedField == .lastName ? Color.white.opacity(0.3) : Color.white.opacity(0.1), lineWidth: 1)
-                                        )
-                                )
-                                .foregroundColor(.white)
-                                .focused($focusedField, equals: .lastName)
-                                .onSubmit {
-                                    focusedField = .password
-                                }
-                        }
+                        ModernTextField(
+                            title: "LAST NAME",
+                            placeholder: "Last name",
+                            text: $lastName,
+                            isFocused: focusedField == .lastName
+                        )
+                        .focused($focusedField, equals: .lastName)
+                        .onSubmit { focusedField = .password }
                     }
                     
                     // Password field
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Password")
-                            .font(.system(size: 12))
-                            .foregroundColor(.gray)
-                        SecureField("Enter your password", text: $password)
-                            .textFieldStyle(.plain)
-                            .padding(12)
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color.white.opacity(0.05))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .stroke(focusedField == .password ? Color.white.opacity(0.3) : Color.white.opacity(0.1), lineWidth: 1)
-                                    )
-                            )
-                            .foregroundColor(.white)
-                            .focused($focusedField, equals: .password)
-                            .onSubmit {
-                                handleLogin()
-                            }
-                    }
+                    ModernTextField(
+                        title: "PASSWORD",
+                        placeholder: "Enter your password",
+                        text: $password,
+                        isSecure: true,
+                        isFocused: focusedField == .password
+                    )
+                    .focused($focusedField, equals: .password)
+                    .onSubmit { handleLogin() }
                 }
-                .padding(.horizontal, 32)
-                .padding(.bottom, 32)
+                .padding(.horizontal, 36)
+                .padding(.bottom, 36)
                 
-                // Continue button
+                // Continue button with glow
                 Button(action: handleLogin) {
                     HStack(spacing: 12) {
                         Text("Continue")
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(.white.opacity(0.9))
+                            .font(.system(size: 16, weight: .semibold))
                         Spacer()
                         Image(systemName: "arrow.right")
                             .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(.white.opacity(0.9))
+                            .offset(x: isHoveredButton ? 4 : 0)
                     }
-                    .padding(.horizontal, 20)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 24)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 48)
+                    .frame(height: 56)
                     .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color(red: 0.2, green: 0.2, blue: 0.22))
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 14)
+                                .fill(Color.white.opacity(isHoveredButton ? 0.15 : 0.08))
+                            RoundedRectangle(cornerRadius: 14)
+                                .stroke(
+                                    LinearGradient(
+                                        colors: [
+                                            Color.white.opacity(isHoveredButton ? 0.4 : 0.2),
+                                            Color.white.opacity(isHoveredButton ? 0.15 : 0.08)
+                                        ],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ),
+                                    lineWidth: 1
+                                )
+                        }
                     )
+                    .shadow(color: Color.white.opacity(isHoveredButton ? 0.2 : 0.1), radius: isHoveredButton ? 25 : 15)
                 }
                 .buttonStyle(.plain)
-                .disabled(firstName.isEmpty || lastName.isEmpty || password.isEmpty || !isEmailFieldValid)
-                .opacity(firstName.isEmpty || lastName.isEmpty || password.isEmpty || !isEmailFieldValid ? 0.5 : 1.0)
-                .padding(.horizontal, 32)
-                .padding(.bottom, 24)
+                .disabled(!isFormValid)
+                .opacity(isFormValid ? 1.0 : 0.5)
+                .padding(.horizontal, 36)
+                .padding(.bottom, 28)
+                .onHover { hovering in
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        isHoveredButton = hovering
+                    }
+                }
                 
                 // Sign in link
-                HStack {
+                HStack(spacing: 6) {
                     Text("Already have an account?")
                         .font(.system(size: 14))
-                        .foregroundColor(.gray)
+                        .foregroundColor(Color(white: 0.5))
                     Button("Sign in") {
                         onShowSignIn()
                     }
-                    .font(.system(size: 14, weight: .medium))
+                    .font(.system(size: 14, weight: .semibold))
                     .foregroundColor(.white)
+                    .buttonStyle(.plain)
                 }
-                .padding(.bottom, 40)
+                .padding(.bottom, 48)
                 }
-                .frame(width: 480)
+                .frame(width: 500)
                 .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color(red: 0.15, green: 0.15, blue: 0.18))
+                    RoundedRectangle(cornerRadius: 24)
+                        .fill(Color(white: 0.06))
                 )
             }
         }
@@ -307,7 +289,58 @@ struct LoginView: View {
     }
 }
 
+// MARK: - Modern Text Field Component
+struct ModernTextField: View {
+    let title: String
+    let placeholder: String
+    @Binding var text: String
+    var isSecure: Bool = false
+    var isFocused: Bool = false
+    
+    @State private var isHovered = false
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(title)
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundColor(Color(white: 0.45))
+                .tracking(1.2)
+            
+            Group {
+                if isSecure {
+                    SecureField(placeholder, text: $text)
+                } else {
+                    TextField(placeholder, text: $text)
+                }
+            }
+            .textFieldStyle(.plain)
+            .font(.system(size: 15))
+            .foregroundColor(.white)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 16)
+            .background(
+                ZStack {
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.white.opacity(0.03))
+                    
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(
+                            isFocused ? Color.white.opacity(0.35) : Color.white.opacity(isHovered ? 0.15 : 0.08),
+                            lineWidth: 1
+                        )
+                }
+            )
+            .shadow(color: isFocused ? Color.white.opacity(0.08) : .clear, radius: 12)
+            .onHover { hovering in
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    isHovered = hovering
+                }
+            }
+        }
+    }
+}
+
 #Preview {
-    LoginView(onLogin: {})
+    LoginView(onLogin: {}, onShowSignIn: {})
 }
 

@@ -12,7 +12,7 @@ class FirebaseService {
     
     func configure() {
         print("🔵 [FirebaseService] Starting Firebase configuration...")
-        
+
         guard FirebaseApp.app() == nil else {
             print("✅ [FirebaseService] Firebase already configured")
             if db == nil {
@@ -20,34 +20,81 @@ class FirebaseService {
             }
             return
         }
-        
-        guard let path = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") else {
-            print("❌ [FirebaseService] ERROR: GoogleService-Info.plist not found in bundle")
-            print("   Make sure GoogleService-Info.plist is added to the project and included in the target")
-            return
+
+        // Try to find the plist in the bundle first
+        if let path = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
+           let plist = NSDictionary(contentsOfFile: path) {
+            print("✅ [FirebaseService] GoogleService-Info.plist found at: \(path)")
+
+            // Log some key info (without sensitive data)
+            if let projectID = plist["PROJECT_ID"] as? String {
+                print("   - Project ID: \(projectID)")
+            }
+            if let bundleID = plist["BUNDLE_ID"] as? String {
+                print("   - Bundle ID: \(bundleID)")
+            }
+
+            FirebaseApp.configure()
+            print("✅ [FirebaseService] FirebaseApp.configure() called successfully")
+        } else {
+            // If not in bundle, try to load from source directory (for debug builds)
+            print("⚠️ [FirebaseService] GoogleService-Info.plist not found in bundle")
+            print("   Bundle path: \(Bundle.main.bundlePath)")
+            print("   Current directory: \(FileManager.default.currentDirectoryPath)")
+            print("   Attempting to load from source directory...")
+
+            let possiblePaths = [
+                Bundle.main.bundlePath + "/../../AgentText/GoogleService-Info.plist",
+                Bundle.main.bundlePath + "/../../../AgentText/GoogleService-Info.plist",
+                FileManager.default.currentDirectoryPath + "/AgentText/GoogleService-Info.plist",
+                NSHomeDirectory() + "/development/AgentText/AgentText/GoogleService-Info.plist"
+            ]
+
+            var configured = false
+            for path in possiblePaths {
+                let expandedPath = (path as NSString).standardizingPath
+                print("   Checking: \(expandedPath)")
+                if FileManager.default.fileExists(atPath: expandedPath),
+                   let plist = NSDictionary(contentsOfFile: expandedPath),
+                   let apiKey = plist["API_KEY"] as? String,
+                   let gcmSenderID = plist["GCM_SENDER_ID"] as? String,
+                   let projectID = plist["PROJECT_ID"] as? String,
+                   let bundleID = plist["BUNDLE_ID"] as? String,
+                   let googleAppID = plist["GOOGLE_APP_ID"] as? String {
+
+                    print("✅ [FirebaseService] Found GoogleService-Info.plist at: \(expandedPath)")
+                    print("   - Project ID: \(projectID)")
+                    print("   - Bundle ID: \(bundleID)")
+
+                    // Manually configure Firebase with options
+                    let options = FirebaseOptions(googleAppID: googleAppID, gcmSenderID: gcmSenderID)
+                    options.apiKey = apiKey
+                    options.projectID = projectID
+                    options.bundleID = bundleID
+                    if let storageBucket = plist["STORAGE_BUCKET"] as? String {
+                        options.storageBucket = storageBucket
+                    }
+                    if let databaseURL = plist["DATABASE_URL"] as? String {
+                        options.databaseURL = databaseURL
+                    }
+
+                    FirebaseApp.configure(options: options)
+                    print("✅ [FirebaseService] Firebase manually configured successfully")
+                    configured = true
+                    break
+                }
+            }
+
+            if !configured {
+                print("❌ [FirebaseService] ERROR: Could not find or configure Firebase")
+                print("   Make sure GoogleService-Info.plist exists in AgentText/ directory")
+                return
+            }
         }
-        
-        guard let plist = NSDictionary(contentsOfFile: path) else {
-            print("❌ [FirebaseService] ERROR: Could not read GoogleService-Info.plist")
-            return
-        }
-        
-        print("✅ [FirebaseService] GoogleService-Info.plist found at: \(path)")
-        
-        // Log some key info (without sensitive data)
-        if let projectID = plist["PROJECT_ID"] as? String {
-            print("   - Project ID: \(projectID)")
-        }
-        if let bundleID = plist["BUNDLE_ID"] as? String {
-            print("   - Bundle ID: \(bundleID)")
-        }
-        
-        FirebaseApp.configure()
-        print("✅ [FirebaseService] FirebaseApp.configure() called successfully")
-        
+
         db = Firestore.firestore()
         print("✅ [FirebaseService] Firestore initialized")
-        
+
         // Test Firestore connection
         testFirestoreConnection()
     }

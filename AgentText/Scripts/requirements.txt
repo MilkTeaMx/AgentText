@@ -1,0 +1,12 @@
+# Python dependencies for AgentText integration
+# This file lists the packages needed for the Python scripts
+
+# AgentText Python package
+# Install from your local copy:
+# pip3 install -e /path/to/agenttext_package
+#
+# Or if published to PyPI:
+# agenttext
+
+# HTTP library (usually included with Python)
+requests>=2.31.0

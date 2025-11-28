@@ -12,6 +12,7 @@ struct DeveloperUploadForm: View {
     @State private var showSuccess = false
     @State private var showError = false
     @State private var errorMessage = ""
+    @State private var isHoveredSubmit = false
     
     @FocusState private var focusedField: Field?
     
@@ -21,38 +22,48 @@ struct DeveloperUploadForm: View {
     
     var body: some View {
         ScrollView {
-            VStack(spacing: 24) {
+            VStack(spacing: 28) {
                 // Header
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 10) {
                     Text("Publish Agent")
                         .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(.white)
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [.white, Color(white: 0.85)],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
                     
                     Text("Submit your agent to the AgentText Marketplace")
                         .font(.system(size: 14))
-                        .foregroundColor(.gray)
+                        .foregroundColor(Color(white: 0.5))
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 
                 // Form fields
-                VStack(spacing: 20) {
+                VStack(spacing: 24) {
                     // Agent Name
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Agent Name *")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.gray)
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("AGENT NAME")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(Color(white: 0.45))
+                            .tracking(1.2)
                         TextField("Enter agent name", text: $agentName)
                             .textFieldStyle(.plain)
-                            .padding(12)
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color.white.opacity(0.05))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .stroke(focusedField == .agentName ? Color.white.opacity(0.3) : Color.white.opacity(0.1), lineWidth: 1)
-                                    )
-                            )
+                            .font(.system(size: 15))
                             .foregroundColor(.white)
+                            .padding(.horizontal, 18)
+                            .padding(.vertical, 16)
+                            .background(
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color.white.opacity(0.03))
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(focusedField == .agentName ? Color.white.opacity(0.35) : Color.white.opacity(0.08), lineWidth: 1)
+                                }
+                            )
+                            .shadow(color: focusedField == .agentName ? Color.white.opacity(0.08) : .clear, radius: 12)
                             .focused($focusedField, equals: .agentName)
                             .onSubmit {
                                 focusedField = .description
@@ -61,51 +72,60 @@ struct DeveloperUploadForm: View {
                         // Preview text showing user call format
                         if !agentName.trimmingCharacters(in: .whitespaces).isEmpty {
                             let previewName = agentName.replacingOccurrences(of: " ", with: "_")
-                            Text("User call: @\(previewName)")
-                                .font(.system(size: 11, design: .monospaced))
-                                .foregroundColor(.green)
-                                .padding(.top, 4)
-                                .transition(.opacity)
+                            HStack(spacing: 6) {
+                                Image(systemName: "at")
+                                    .font(.system(size: 10))
+                                Text("User call: @\(previewName)")
+                                    .font(.system(size: 11, design: .monospaced))
+                            }
+                            .foregroundColor(Color(red: 0.2, green: 0.8, blue: 0.4))
+                            .padding(.top, 4)
+                            .transition(.opacity)
                         }
                     }
                     
                     // Description
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Description *")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.gray)
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("DESCRIPTION")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(Color(white: 0.45))
+                            .tracking(1.2)
                         TextEditor(text: $description)
                             .frame(minHeight: 100)
-                            .padding(8)
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color.white.opacity(0.05))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .stroke(focusedField == .description ? Color.white.opacity(0.3) : Color.white.opacity(0.1), lineWidth: 1)
-                                    )
-                            )
+                            .font(.system(size: 15))
                             .foregroundColor(.white)
+                            .padding(14)
+                            .background(
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color.white.opacity(0.03))
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(focusedField == .description ? Color.white.opacity(0.35) : Color.white.opacity(0.08), lineWidth: 1)
+                                }
+                            )
+                            .shadow(color: focusedField == .description ? Color.white.opacity(0.08) : .clear, radius: 12)
                             .focused($focusedField, equals: .description)
                             .scrollContentBackground(.hidden)
                     }
                     
                     // Logic
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Logic (Code) *")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.gray)
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("LOGIC (CODE)")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(Color(white: 0.45))
+                            .tracking(1.2)
                         TextEditor(text: $logic)
                             .frame(minHeight: 200)
-                            .padding(8)
+                            .padding(14)
                             .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color.white.opacity(0.05))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .stroke(focusedField == .logic ? Color.white.opacity(0.3) : Color.white.opacity(0.1), lineWidth: 1)
-                                    )
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color.white.opacity(0.03))
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(focusedField == .logic ? Color.white.opacity(0.35) : Color.white.opacity(0.08), lineWidth: 1)
+                                }
                             )
+                            .shadow(color: focusedField == .logic ? Color.white.opacity(0.08) : .clear, radius: 12)
                             .foregroundColor(.white)
                             .focused($focusedField, equals: .logic)
                             .scrollContentBackground(.hidden)
@@ -113,7 +133,7 @@ struct DeveloperUploadForm: View {
                     }
                 }
                 
-                // Submit button
+                // Submit button with glow
                 Button(action: handleSubmit) {
                     HStack(spacing: 12) {
                         if isSubmitting {
@@ -121,56 +141,88 @@ struct DeveloperUploadForm: View {
                                 .progressViewStyle(CircularProgressViewStyle(tint: .white))
                                 .scaleEffect(0.8)
                         } else {
+                            Image(systemName: "paperplane.fill")
+                                .font(.system(size: 14))
                             Text("Publish Agent")
-                                .font(.system(size: 15, weight: .semibold))
-                                .foregroundColor(.white.opacity(0.9))
+                                .font(.system(size: 16, weight: .semibold))
                         }
                     }
+                    .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 48)
+                    .frame(height: 56)
                     .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(isFormValid && !isSubmitting ? Color(red: 0.2, green: 0.2, blue: 0.22) : Color.gray.opacity(0.3))
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 14)
+                                .fill(isFormValid && !isSubmitting ? Color.white.opacity(isHoveredSubmit ? 0.15 : 0.08) : Color.white.opacity(0.03))
+                            RoundedRectangle(cornerRadius: 14)
+                                .stroke(
+                                    LinearGradient(
+                                        colors: [
+                                            Color.white.opacity(isFormValid && !isSubmitting ? (isHoveredSubmit ? 0.4 : 0.2) : 0.08),
+                                            Color.white.opacity(isFormValid && !isSubmitting ? (isHoveredSubmit ? 0.15 : 0.08) : 0.04)
+                                        ],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ),
+                                    lineWidth: 1
+                                )
+                        }
                     )
+                    .shadow(color: isFormValid && !isSubmitting ? Color.white.opacity(isHoveredSubmit ? 0.2 : 0.1) : .clear, radius: isHoveredSubmit ? 25 : 15)
                 }
                 .buttonStyle(.plain)
                 .disabled(!isFormValid || isSubmitting)
                 .opacity(isFormValid && !isSubmitting ? 1.0 : 0.5)
+                .onHover { hovering in
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        isHoveredSubmit = hovering
+                    }
+                }
                 
                 // Success/Error messages
                 if showSuccess {
-                    HStack {
+                    HStack(spacing: 10) {
                         Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(.green)
+                            .foregroundColor(Color(red: 0.2, green: 0.8, blue: 0.4))
                         Text("Agent published successfully!")
-                            .font(.system(size: 14))
-                            .foregroundColor(.green)
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(Color(red: 0.2, green: 0.8, blue: 0.4))
                     }
-                    .padding()
+                    .padding(16)
+                    .frame(maxWidth: .infinity)
                     .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.green.opacity(0.1))
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color(red: 0.2, green: 0.8, blue: 0.4).opacity(0.1))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color(red: 0.2, green: 0.8, blue: 0.4).opacity(0.2), lineWidth: 1)
+                            )
                     )
                 }
                 
                 if showError {
-                    HStack {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundColor(.red)
+                    HStack(spacing: 10) {
+                        Image(systemName: "exclamationmark.circle.fill")
+                            .foregroundColor(Color(red: 1.0, green: 0.3, blue: 0.3))
                         Text(errorMessage)
-                            .font(.system(size: 14))
-                            .foregroundColor(.red)
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(Color(red: 1.0, green: 0.3, blue: 0.3))
                     }
-                    .padding()
+                    .padding(16)
+                    .frame(maxWidth: .infinity)
                     .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.red.opacity(0.1))
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color(red: 1.0, green: 0.3, blue: 0.3).opacity(0.1))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color(red: 1.0, green: 0.3, blue: 0.3).opacity(0.2), lineWidth: 1)
+                            )
                     )
                 }
             }
             .padding(32)
         }
-        .background(Color(red: 0.1, green: 0.1, blue: 0.12))
+        .background(Color.black)
     }
     
     private var isFormValid: Bool {
