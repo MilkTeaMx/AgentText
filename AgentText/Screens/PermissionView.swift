@@ -2,61 +2,105 @@ import SwiftUI
 import AppKit
 
 struct PermissionView: View {
+    @State private var isHoveredButton = false
+    
     var body: some View {
         ZStack {
-            // Dark background
-            Color(red: 0.1, green: 0.1, blue: 0.12)
-                .ignoresSafeArea()
+            // Animated dark background
+            AnimatedBackground()
             
             // Main card with luminescent outline
             LuminescentCard {
-                VStack(spacing: 32) {
-                    // Logo
-                    LogoView(size: 80)
+                VStack(spacing: 40) {
+                    // Logo with enhanced glow
+                    LogoView(size: 88)
                     
                     VStack(spacing: 16) {
                         Text("AgentText Setup")
-                            .font(.system(size: 28, weight: .bold))
-                            .foregroundColor(.white)
+                            .font(.system(size: 32, weight: .bold))
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [.white, Color(white: 0.85)],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
                         
                         Text("To enable message processing, please grant Full Disk Access.")
                             .font(.system(size: 15))
-                            .foregroundColor(.gray)
+                            .foregroundColor(Color(white: 0.5))
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 40)
                     }
                     
+                    // Permission button with glow
                     Button(action: openFullDiskAccess) {
-                        Text("Open Full Disk Access")
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(.white.opacity(0.9))
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 48)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color(red: 0.2, green: 0.2, blue: 0.22))
-                            )
+                        HStack(spacing: 12) {
+                            Image(systemName: "lock.open.fill")
+                                .font(.system(size: 14, weight: .semibold))
+                            Text("Open Full Disk Access")
+                                .font(.system(size: 16, weight: .semibold))
+                            Spacer()
+                            Image(systemName: "arrow.right")
+                                .font(.system(size: 14, weight: .semibold))
+                                .offset(x: isHoveredButton ? 4 : 0)
+                        }
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 24)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 56)
+                        .background(
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 14)
+                                    .fill(Color.white.opacity(isHoveredButton ? 0.15 : 0.08))
+                                RoundedRectangle(cornerRadius: 14)
+                                    .stroke(
+                                        LinearGradient(
+                                            colors: [
+                                                Color.white.opacity(isHoveredButton ? 0.4 : 0.2),
+                                                Color.white.opacity(isHoveredButton ? 0.15 : 0.08)
+                                            ],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        ),
+                                        lineWidth: 1
+                                    )
+                            }
+                        )
+                        .shadow(color: Color.white.opacity(isHoveredButton ? 0.2 : 0.1), radius: isHoveredButton ? 25 : 15)
                     }
                     .buttonStyle(.plain)
-                    .frame(width: 320)
+                    .frame(width: 340)
+                    .onHover { hovering in
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            isHoveredButton = hovering
+                        }
+                    }
+                    
+                    // Info text
+                    HStack(spacing: 8) {
+                        Image(systemName: "info.circle")
+                            .font(.system(size: 12))
+                        Text("This permission is required to access your messages")
+                            .font(.system(size: 12))
+                    }
+                    .foregroundColor(Color(white: 0.4))
                 }
-                .padding(40)
-                .frame(width: 480)
+                .padding(48)
+                .frame(width: 520)
                 .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color(red: 0.15, green: 0.15, blue: 0.18))
+                    RoundedRectangle(cornerRadius: 24)
+                        .fill(Color(white: 0.06))
                 )
             }
         }
         .frame(minWidth: 600, minHeight: 500)
         .onAppear {
-            // Attempt to access Messages database to trigger macOS to add app to Full Disk Access list
             checkMessagesAccess()
         }
     }
 
     private func openFullDiskAccess() {
-        // Use the correct URL for macOS 13+ System Settings
         let urlString = "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles"
         if let url = URL(string: urlString) {
             NSWorkspace.shared.open(url)
@@ -64,17 +108,12 @@ struct PermissionView: View {
     }
     
     private func checkMessagesAccess() {
-        // Attempt to access the Messages database
-        // This will fail without permission, but makes macOS aware the app needs Full Disk Access
         let messagesPath = FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent("Library")
             .appendingPathComponent("Messages")
             .appendingPathComponent("chat.db")
         
-        // Try to read from the database - this triggers macOS to add app to Full Disk Access list
         if FileManager.default.fileExists(atPath: messagesPath.path) {
-            // Attempt to open the database file
-            // This will fail without Full Disk Access, but makes macOS aware
             _ = try? Data(contentsOf: messagesPath)
         }
     }

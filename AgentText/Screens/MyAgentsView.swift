@@ -11,59 +11,88 @@ struct InstalledAgentsView: View {
     var body: some View {
         VStack(spacing: 0) {
             // Header
-            HStack {
-                Text("Installed Agents")
-                    .font(.system(size: 28, weight: .bold))
-                    .foregroundColor(.white)
-                Spacer()
-                Button(action: refreshAgents) {
-                    Image(systemName: "arrow.clockwise")
-                        .foregroundColor(.white)
+            HStack(spacing: 16) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Installed Agents")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [.white, Color(white: 0.85)],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                    Text("Manage your installed AI agents")
+                        .font(.system(size: 13))
+                        .foregroundColor(Color(white: 0.5))
                 }
-                .buttonStyle(.plain)
+                Spacer()
+                GlowingIconButton(icon: "arrow.clockwise") {
+                    refreshAgents()
+                }
+                .opacity(isLoading ? 0.5 : 1)
                 .disabled(isLoading)
             }
-            .padding(24)
-            .background(Color(red: 0.1, green: 0.1, blue: 0.12))
+            .padding(.horizontal, 28)
+            .padding(.vertical, 24)
+            .background(Color(white: 0.04))
             
-            Divider()
+            GlowingDivider(opacity: 0.1)
             
             // Content
             if isLoading {
                 Spacer()
-                ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                VStack(spacing: 16) {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        .scaleEffect(1.2)
+                    Text("Loading agents...")
+                        .font(.system(size: 14))
+                        .foregroundColor(Color(white: 0.5))
+                }
                 Spacer()
             } else if let error = errorMessage {
                 Spacer()
-                VStack(spacing: 12) {
-                    Image(systemName: "exclamationmark.triangle")
-                        .font(.system(size: 48))
-                        .foregroundColor(.red)
+                VStack(spacing: 20) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.red.opacity(0.1))
+                            .frame(width: 80, height: 80)
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.system(size: 32))
+                            .foregroundColor(.red)
+                    }
                     Text("Error loading agents")
-                        .font(.headline)
+                        .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(.white)
                     Text(error)
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                    Button("Retry") {
+                        .font(.system(size: 13))
+                        .foregroundColor(Color(white: 0.5))
+                        .multilineTextAlignment(.center)
+                    GlowingButton("Retry", icon: "arrow.clockwise", style: .secondary) {
                         refreshAgents()
                     }
-                    .buttonStyle(.bordered)
+                    .frame(width: 140)
                 }
+                .padding(40)
                 Spacer()
             } else if agents.isEmpty {
                 Spacer()
-                VStack(spacing: 12) {
-                    Image(systemName: "app.badge")
-                        .font(.system(size: 48))
-                        .foregroundColor(.gray)
+                VStack(spacing: 20) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.white.opacity(0.05))
+                            .frame(width: 80, height: 80)
+                        Image(systemName: "app.badge")
+                            .font(.system(size: 32))
+                            .foregroundColor(Color(white: 0.4))
+                    }
                     Text("No installed agents")
-                        .font(.headline)
+                        .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(.white)
                     Text("Browse the marketplace to install agents")
-                        .font(.caption)
-                        .foregroundColor(.gray)
+                        .font(.system(size: 13))
+                        .foregroundColor(Color(white: 0.5))
                 }
                 Spacer()
             } else {
@@ -83,11 +112,11 @@ struct InstalledAgentsView: View {
                             )
                         }
                     }
-                    .padding(24)
+                    .padding(28)
                 }
             }
         }
-        .background(Color(red: 0.1, green: 0.1, blue: 0.12))
+        .background(Color.black)
         .onAppear {
             refreshAgents()
         }
@@ -168,72 +197,118 @@ struct InstalledAgentCard: View {
     let onLike: () -> Void
     let onDislike: () -> Void
     
+    @State private var isHovered = false
+    @State private var isHoveredLike = false
+    @State private var isHoveredDislike = false
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 6) {
                     Text(agent.agentName)
                         .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.white)
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [.white, Color(white: 0.9)],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
                     
                     Text("by \(agent.developerName)")
-                        .font(.system(size: 12))
-                        .foregroundColor(.gray)
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(Color(white: 0.45))
                 }
                 
                 Spacer()
                 
-                HStack(spacing: 8) {
+                // Installed badge with glow
+                HStack(spacing: 6) {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.green)
+                        .foregroundColor(Color(red: 0.2, green: 0.8, blue: 0.4))
                     Text("Installed")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.green)
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(Color(red: 0.2, green: 0.8, blue: 0.4))
                 }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(
+                    Capsule()
+                        .fill(Color(red: 0.2, green: 0.8, blue: 0.4).opacity(0.15))
+                )
             }
             
             Text(agent.description)
                 .font(.system(size: 14))
-                .foregroundColor(.white.opacity(0.8))
+                .foregroundColor(Color(white: 0.7))
                 .lineLimit(3)
             
-            HStack(spacing: 20) {
-                HStack(spacing: 6) {
-                    Image(systemName: "arrow.down.circle")
-                        .font(.system(size: 12))
-                    Text("\(agent.installations)")
-                        .font(.system(size: 12))
-                }
-                .foregroundColor(.gray)
+            // Stats and reaction buttons
+            HStack(spacing: 24) {
+                StatBadge(icon: "arrow.down.circle", value: "\(agent.installations)", color: Color(white: 0.5))
                 
+                // Like button
                 Button(action: onLike) {
                     HStack(spacing: 6) {
                         Image(systemName: isLiked ? "hand.thumbsup.fill" : "hand.thumbsup")
-                            .font(.system(size: 12))
+                            .font(.system(size: 13))
                         Text("\(agent.likes)")
-                            .font(.system(size: 12))
+                            .font(.system(size: 13, weight: .medium))
                     }
-                    .foregroundColor(isLiked ? .green : .gray)
+                    .foregroundColor(isLiked ? Color(red: 0.2, green: 0.8, blue: 0.4) : Color(white: isHoveredLike ? 0.7 : 0.5))
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(
+                        Capsule()
+                            .fill(isLiked ? Color(red: 0.2, green: 0.8, blue: 0.4).opacity(0.15) : Color.white.opacity(isHoveredLike ? 0.08 : 0))
+                    )
                 }
                 .buttonStyle(.plain)
+                .onHover { hovering in
+                    withAnimation(.easeInOut(duration: 0.15)) {
+                        isHoveredLike = hovering
+                    }
+                }
                 
+                // Dislike button
                 Button(action: onDislike) {
                     HStack(spacing: 6) {
                         Image(systemName: isDisliked ? "hand.thumbsdown.fill" : "hand.thumbsdown")
-                            .font(.system(size: 12))
+                            .font(.system(size: 13))
                         Text("\(agent.dislikes)")
-                            .font(.system(size: 12))
+                            .font(.system(size: 13, weight: .medium))
                     }
-                    .foregroundColor(isDisliked ? .red : .gray)
+                    .foregroundColor(isDisliked ? Color(red: 0.9, green: 0.3, blue: 0.3) : Color(white: isHoveredDislike ? 0.7 : 0.5))
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(
+                        Capsule()
+                            .fill(isDisliked ? Color(red: 0.9, green: 0.3, blue: 0.3).opacity(0.15) : Color.white.opacity(isHoveredDislike ? 0.08 : 0))
+                    )
                 }
                 .buttonStyle(.plain)
+                .onHover { hovering in
+                    withAnimation(.easeInOut(duration: 0.15)) {
+                        isHoveredDislike = hovering
+                    }
+                }
             }
         }
-        .padding(20)
+        .padding(24)
         .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color(red: 0.15, green: 0.15, blue: 0.18))
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(white: 0.06))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.white.opacity(isHovered ? 0.12 : 0.06), lineWidth: 1)
+                )
         )
+        .shadow(color: Color.white.opacity(isHovered ? 0.05 : 0), radius: 20)
+        .onHover { hovering in
+            withAnimation(.easeInOut(duration: 0.2)) {
+                isHovered = hovering
+            }
+        }
     }
 }
 

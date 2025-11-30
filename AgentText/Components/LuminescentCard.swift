@@ -3,6 +3,7 @@ import SwiftUI
 struct LuminescentCard<Content: View>: View {
     let content: Content
     @State private var isVisible = false
+    @State private var isHovered = false
     
     init(@ViewBuilder content: () -> Content) {
         self.content = content()
@@ -12,59 +13,53 @@ struct LuminescentCard<Content: View>: View {
         content
             .background(
                 ZStack {
-                    // Outer glow
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    Color(red: 1.0, green: 0.4, blue: 0.2).opacity(0.6),
-                                    Color(red: 0.8, green: 0.2, blue: 0.6).opacity(0.6),
-                                    Color(red: 0.4, green: 0.2, blue: 0.8).opacity(0.6)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .blur(radius: 20)
-                        .padding(-20)
-                        .opacity(isVisible ? 0.8 : 0)
+                    // Outer glow - pure white
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(Color.white.opacity(0.15))
+                        .blur(radius: 40)
+                        .padding(-30)
+                        .opacity(isVisible ? (isHovered ? 0.5 : 0.3) : 0)
                     
-                    // Middle glow
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    Color(red: 1.0, green: 0.5, blue: 0.3).opacity(0.7),
-                                    Color(red: 0.7, green: 0.3, blue: 0.7).opacity(0.7)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .blur(radius: 12)
-                        .padding(-12)
-                        .opacity(isVisible ? 0.7 : 0)
+                    // Middle glow - soft white
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(Color.white.opacity(0.1))
+                        .blur(radius: 20)
+                        .padding(-15)
+                        .opacity(isVisible ? (isHovered ? 0.6 : 0.4) : 0)
+                    
+                    // Inner subtle glow
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(Color.white.opacity(0.05))
+                        .blur(radius: 10)
+                        .padding(-5)
+                        .opacity(isVisible ? 0.5 : 0)
                 }
             )
             .overlay(
-                // Inner border glow
-                RoundedRectangle(cornerRadius: 16)
+                // Glass border with white glow
+                RoundedRectangle(cornerRadius: 20)
                     .stroke(
                         LinearGradient(
                             colors: [
-                                Color(red: 1.0, green: 0.6, blue: 0.4).opacity(1.0),
-                                Color(red: 0.8, green: 0.4, blue: 0.8).opacity(1.0),
-                                Color(red: 0.5, green: 0.3, blue: 1.0).opacity(1.0)
+                                Color.white.opacity(isHovered ? 0.4 : 0.25),
+                                Color.white.opacity(isHovered ? 0.15 : 0.08),
+                                Color.white.opacity(isHovered ? 0.3 : 0.2)
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         ),
-                        lineWidth: 1.5
+                        lineWidth: 1
                     )
                     .opacity(isVisible ? 1.0 : 0)
             )
+            .shadow(color: Color.white.opacity(isHovered ? 0.15 : 0.08), radius: isHovered ? 30 : 15, x: 0, y: 0)
             .opacity(isVisible ? 1.0 : 0)
-            .scaleEffect(isVisible ? 1.0 : 0.95)
+            .scaleEffect(isVisible ? 1.0 : 0.96)
+            .onHover { hovering in
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    isHovered = hovering
+                }
+            }
             .onAppear {
                 withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                     isVisible = true
@@ -84,8 +79,8 @@ struct LuminescentCard<Content: View>: View {
             }
             .frame(width: 300, height: 200)
             .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(red: 0.15, green: 0.15, blue: 0.18))
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color(white: 0.06))
             )
         }
     }
