@@ -9,12 +9,14 @@ struct DashboardView: View {
         case marketplace = "Marketplace"
         case installedAgents = "Installed Agents"
         case developerConsole = "Developer Console"
-        
+        case profile = "Profile"
+
         var icon: String {
             switch self {
             case .marketplace: return "square.grid.2x2"
             case .installedAgents: return "app.badge"
             case .developerConsole: return "wrench.and.screwdriver"
+            case .profile: return "person.circle"
             }
         }
     }
@@ -36,6 +38,9 @@ struct DashboardView: View {
                         .environmentObject(authManager)
                 case .developerConsole:
                     DeveloperConsoleView()
+                        .environmentObject(authManager)
+                case .profile:
+                    ProfileView()
                         .environmentObject(authManager)
                 }
             }

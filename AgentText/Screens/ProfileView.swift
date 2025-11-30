@@ -1,0 +1,294 @@
+import SwiftUI
+import FirebaseAuth
+
+struct ProfileView: View {
+    @EnvironmentObject var authManager: AuthManager
+    @StateObject private var googleOAuth = GoogleOAuthManager.shared
+
+    @State private var isConnecting = false
+    @State private var errorMessage: String?
+    @State private var showSuccess = false
+
+    private var currentUser: User? {
+        Auth.auth().currentUser
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // Header
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Profile")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [.white, Color(white: 0.85)],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                    Text("Manage your account settings")
+                        .font(.system(size: 13))
+                        .foregroundColor(Color(white: 0.5))
+                }
+                Spacer()
+            }
+            .padding(.horizontal, 28)
+            .padding(.vertical, 24)
+            .background(Color(white: 0.04))
+
+            GlowingDivider(opacity: 0.1)
+
+            // Profile content
+            ScrollView {
+                VStack(spacing: 24) {
+                    // Profile Card
+                    GlassCard {
+                        VStack(spacing: 20) {
+                            // User Avatar
+                            ZStack {
+                                Circle()
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [Color(white: 0.2), Color(white: 0.1)],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .frame(width: 80, height: 80)
+                                    .shadow(color: Color.white.opacity(0.1), radius: 10)
+
+                                Image(systemName: "person.fill")
+                                    .font(.system(size: 36))
+                                    .foregroundColor(Color(white: 0.7))
+                            }
+
+                            VStack(spacing: 8) {
+                                if let user = currentUser {
+                                    Text(user.email ?? "No email")
+                                        .font(.system(size: 18, weight: .semibold))
+                                        .foregroundColor(.white)
+
+                                    Text("User ID: \(user.uid)")
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundColor(Color(white: 0.5))
+                                } else {
+                                    Text("Not signed in")
+                                        .font(.system(size: 18, weight: .semibold))
+                                        .foregroundColor(Color(white: 0.5))
+                                }
+                            }
+                        }
+                        .padding(.vertical, 32)
+                        .frame(maxWidth: .infinity)
+                    }
+
+                    // Account Information
+                    GlassCard {
+                        VStack(alignment: .leading, spacing: 20) {
+                            Text("Account Information")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.white)
+
+                            GlowingDivider(opacity: 0.08)
+
+                            if let user = currentUser {
+                                ProfileInfoRow(label: "Email", value: user.email ?? "N/A")
+                                ProfileInfoRow(label: "User ID", value: user.uid)
+                                ProfileInfoRow(label: "Account Created", value: formatDate(user.metadata.creationDate))
+                                ProfileInfoRow(label: "Last Sign In", value: formatDate(user.metadata.lastSignInDate))
+                            } else {
+                                Text("No user information available")
+                                    .font(.system(size: 13))
+                                    .foregroundColor(Color(white: 0.5))
+                            }
+                        }
+                        .padding(24)
+                    }
+
+                    // Google Calendar Integration
+                    GlassCard {
+                        VStack(alignment: .leading, spacing: 20) {
+                            HStack {
+                                Image(systemName: "calendar")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundColor(.white)
+                                Text("Google Calendar")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundColor(.white)
+                                Spacer()
+
+                                if googleOAuth.isAuthenticated {
+                                    HStack(spacing: 6) {
+                                        Circle()
+                                            .fill(Color.green)
+                                            .frame(width: 8, height: 8)
+                                        Text("Connected")
+                                            .font(.system(size: 12, weight: .medium))
+                                            .foregroundColor(Color.green)
+                                    }
+                                }
+                            }
+
+                            GlowingDivider(opacity: 0.08)
+
+                            Text(googleOAuth.isAuthenticated
+                                ? "Your Google Calendar is connected. You can now access your calendar events."
+                                : "Connect your Google account to access Google Calendar and manage your events.")
+                                .font(.system(size: 13))
+                                .foregroundColor(Color(white: 0.6))
+                                .fixedSize(horizontal: false, vertical: true)
+
+                            // Error message
+                            if let errorMessage = errorMessage {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                        .foregroundColor(.red)
+                                    Text(errorMessage)
+                                        .font(.system(size: 12))
+                                        .foregroundColor(.red)
+                                }
+                                .padding(12)
+                                .background(Color.red.opacity(0.1))
+                                .cornerRadius(8)
+                            }
+
+                            // Success message
+                            if showSuccess {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundColor(.green)
+                                    Text("Successfully connected to Google Calendar!")
+                                        .font(.system(size: 12))
+                                        .foregroundColor(.green)
+                                }
+                                .padding(12)
+                                .background(Color.green.opacity(0.1))
+                                .cornerRadius(8)
+                            }
+
+                            // Action button
+                            if googleOAuth.isAuthenticated {
+                                GlowingButton(
+                                    "Disconnect",
+                                    icon: nil,
+                                    isLoading: isConnecting,
+                                    style: .secondary
+                                ) {
+                                    disconnectGoogle()
+                                }
+                            } else {
+                                GlowingButton(
+                                    "Connect Google Calendar",
+                                    icon: nil,
+                                    isLoading: isConnecting,
+                                    style: .primary
+                                ) {
+                                    connectGoogle()
+                                }
+                            }
+                        }
+                        .padding(24)
+                    }
+
+                    // App Settings
+                    GlassCard {
+                        VStack(alignment: .leading, spacing: 20) {
+                            Text("App Settings")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.white)
+
+                            GlowingDivider(opacity: 0.08)
+
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("App Version")
+                                        .font(.system(size: 13, weight: .medium))
+                                        .foregroundColor(Color(white: 0.7))
+                                    Text("1.0.0")
+                                        .font(.system(size: 12))
+                                        .foregroundColor(Color(white: 0.5))
+                                }
+                                Spacer()
+                            }
+                        }
+                        .padding(24)
+                    }
+                }
+                .padding(28)
+            }
+        }
+        .background(Color.black)
+    }
+
+    private func formatDate(_ date: Date?) -> String {
+        guard let date = date else { return "N/A" }
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
+    }
+
+    // MARK: - Google OAuth Actions
+
+    private func connectGoogle() {
+        isConnecting = true
+        errorMessage = nil
+        showSuccess = false
+
+        googleOAuth.authenticate { result in
+            isConnecting = false
+
+            switch result {
+            case .success:
+                showSuccess = true
+                // Hide success message after 3 seconds
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                    showSuccess = false
+                }
+            case .failure(let error):
+                errorMessage = error.localizedDescription
+            }
+        }
+    }
+
+    private func disconnectGoogle() {
+        isConnecting = true
+        errorMessage = nil
+
+        googleOAuth.revokeAccess { result in
+            isConnecting = false
+
+            switch result {
+            case .success:
+                break
+            case .failure(let error):
+                errorMessage = error.localizedDescription
+            }
+        }
+    }
+}
+
+struct ProfileInfoRow: View {
+    let label: String
+    let value: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(label)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(Color(white: 0.5))
+            Text(value)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundColor(Color(white: 0.85))
+                .textSelection(.enabled)
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+#Preview {
+    ProfileView()
+        .environmentObject(AuthManager.shared)
+        .frame(width: 800, height: 600)
+}

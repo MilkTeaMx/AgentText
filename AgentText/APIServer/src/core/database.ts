@@ -179,19 +179,21 @@ export class IMessageDatabase {
             // 1. Group chat identifier: "chat123..." - match against chat_identifier
             // 2. Service-prefixed GUID: "iMessage;-;+1234567890" - match against guid
             // 3. Raw identifier: "+1234567890" - match directly against chat_identifier
-            // 
+            //
             // Note: chat_identifier stores the raw ID (e.g., "+1234567890" or "chat123...")
             // while guid stores the service-prefixed version (e.g., "iMessage;-;+1234567890")
             if (chatId.includes(';')) {
                 // Service-prefixed format (guid format) - match against guid
                 // Format could be "iMessage;-;+1234567890" or "SMS;+;chat123..."
-                query += ' AND chat.guid = ?'
-                params.push(chatId)
+                console.log(`[DEBUG] Filtering by chat.guid = "${chatId}"`)
+                query += ' AND (chat.guid = ? OR chat.chat_identifier = ?)'
+                params.push(chatId, chatId)
             } else {
                 // Raw identifier (chat_identifier format) - match directly
                 // This includes phone numbers like "+1234567890" and group IDs like "chat123..."
-                query += ' AND chat.chat_identifier = ?'
-                params.push(chatId)
+                console.log(`[DEBUG] Filtering by chat.chat_identifier = "${chatId}"`)
+                query += ' AND (chat.chat_identifier = ? OR chat.guid LIKE ?)'
+                params.push(chatId, `%${chatId}`)
             }
         }
 
@@ -229,7 +231,10 @@ export class IMessageDatabase {
         }
 
         try {
+            console.log('[DEBUG] Final query:', query)
+            console.log('[DEBUG] Query params:', params)
             const rows = this.db.prepare(query).all(...params) as Array<Record<string, unknown>>
+            console.log(`[DEBUG] Found ${rows.length} rows`)
             const messages = await Promise.all(rows.map((row) => this.rowToMessage(row)))
 
             return {
