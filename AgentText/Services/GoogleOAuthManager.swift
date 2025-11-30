@@ -16,11 +16,11 @@ class GoogleOAuthManager: NSObject, ObservableObject {
     // OAuth Configuration
     // IMPORTANT: Replace with your Desktop app OAuth client ID from Google Cloud Console
     // Create a "Desktop app" client type (not iOS or Web)
-    private let clientId = "33481136950-dj9epm8f78ltl86a0soi0k1cc2ls0ul4.apps.googleusercontent.com"
+    private let clientId = "33481136950-i3pt46jgbmi31nqlbr5mvrkg5cir4r0n.apps.googleusercontent.com"
 
-    // Desktop apps must use localhost with a port number
-    // This is the standard for Google Desktop OAuth
-    private let redirectUri = "http://localhost:8080"
+    // Custom URI scheme for OAuth callback
+    // macOS ASWebAuthenticationSession works better with custom schemes than localhost
+    private let redirectUri = "com.agenttext.oauth:/oauth2redirect"
 
     // OAuth Scopes for Google Calendar
     private let scopes = [
@@ -78,8 +78,8 @@ class GoogleOAuthManager: NSObject, ObservableObject {
 
         print("[GoogleOAuth] Authorization URL: \(authURL.absoluteString)")
 
-        // For localhost redirects, use "http" as the callback scheme
-        let callbackScheme = "http"
+        // Extract the custom URL scheme (everything before ://)
+        let callbackScheme = "com.agenttext.oauth"
         print("[GoogleOAuth] Callback scheme: \(callbackScheme)")
 
         // Create authentication session
@@ -138,11 +138,14 @@ class GoogleOAuthManager: NSObject, ObservableObject {
         authSession?.presentationContextProvider = self
         authSession?.prefersEphemeralWebBrowserSession = false
 
-        if !authSession!.start() {
+        // Start the session
+        let started = authSession!.start()
+        if !started {
             print("[GoogleOAuth] Failed to start authentication session")
             completion(.failure(OAuthError.sessionStartFailed))
         } else {
             print("[GoogleOAuth] Authentication session started")
+            print("[GoogleOAuth] Safari should now open with Google consent screen...")
         }
     }
 

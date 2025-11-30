@@ -31,6 +31,32 @@ const sdk = new IMessageSDK({
     }
 })
 
+/**
+ * Helper function to normalize phone number parameters
+ * Handles:
+ * 1. URL-encoded %2B -> +
+ * 2. Space converted from + in URL -> +
+ * 3. Service-prefixed formats like "iMessage; 1234567890"
+ */
+function normalizePhoneNumberParam(value: string | undefined): string | undefined {
+    if (!value) return value
+
+    // First, decode %2B to +
+    let normalized = value.replace(/%2B/g, '+')
+
+    // If starts with space followed by digits, it's likely a phone number with + converted to space
+    if (/^\s+\d/.test(normalized)) {
+        normalized = '+' + normalized.trim()
+    }
+
+    // If contains "; " (service prefix with space), fix the space after semicolon
+    if (normalized.includes('; ')) {
+        normalized = normalized.replace(/;\s+/, ';+')
+    }
+
+    return normalized
+}
+
 // Health check endpoint
 app.get('/health', (_req: Request, res: Response) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() })
@@ -53,8 +79,8 @@ app.get('/health', (_req: Request, res: Response) => {
 app.get('/messages', async (req: Request, res: Response) => {
     try {
         const filter: MessageFilter = {
-            sender: req.query.sender as string | undefined,
-            chatId: req.query.chatId as string | undefined,
+            sender: normalizePhoneNumberParam(req.query.sender as string | undefined),
+            chatId: normalizePhoneNumberParam(req.query.chatId as string | undefined),
             unreadOnly: req.query.unreadOnly === 'true',
             limit: req.query.limit ? Number(req.query.limit) : undefined,
             since: req.query.since ? new Date(req.query.since as string) : undefined,

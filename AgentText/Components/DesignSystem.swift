@@ -140,6 +140,8 @@ struct GlowingButton: View {
                     ProgressView()
                         .controlSize(.small)
                         .tint(.white)
+                        .frame(width: 16, height: 16)
+                        .scaleEffect(0.8)
                 } else if let icon = icon {
                     Image(systemName: icon)
                         .font(.system(size: 14, weight: .semibold))

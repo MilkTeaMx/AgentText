@@ -251,11 +251,15 @@ class AgentTextClient {
         var queryItems: [URLQueryItem] = []
 
         if let sender = sender {
-            queryItems.append(URLQueryItem(name: "sender", value: sender))
+            // Manually encode + as %2B
+            let encodedSender = sender.replacingOccurrences(of: "+", with: "%2B")
+            queryItems.append(URLQueryItem(name: "sender", value: encodedSender))
         }
 
         if let chatId = chatId {
-            queryItems.append(URLQueryItem(name: "chatId", value: chatId))
+            // Manually encode + as %2B
+            let encodedChatId = chatId.replacingOccurrences(of: "+", with: "%2B")
+            queryItems.append(URLQueryItem(name: "chatId", value: encodedChatId))
         }
 
         if unreadOnly {
