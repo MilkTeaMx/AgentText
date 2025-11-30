@@ -8,31 +8,10 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>com.google.oauth</string>
+			<string>com.googleusercontent.apps.33481136950-mlphghoqv09jd84c99k6pugarc2qffov</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>33481136950-dj9epm8f78ltl86a0soi0k1cc2ls0ul4</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLName</key>
-			<string>com.agenttext.oauth</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>com.agenttext.oauth</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLName</key>
-			<string>com.google.oauth</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>33481136950-i3pt46jgbmi31nqlbr5mvrkg5cir4r0n.apps.googleusercontent.com
-</string>
+				<string>com.googleusercontent.apps.33481136950-mlphghoqv09jd84c99k6pugarc2qffov</string>
 			</array>
 		</dict>
 	</array>
