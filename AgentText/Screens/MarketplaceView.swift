@@ -11,6 +11,7 @@ struct MarketplaceView: View {
     @State private var showTestResult = false
     @State private var isHoveredTest = false
     @State private var isHoveredRefresh = false
+    @State private var installedAgentIds: Set<String> = []
 
     var body: some View {
         VStack(spacing: 0) {
@@ -138,9 +139,13 @@ struct MarketplaceView: View {
                 ScrollView {
                     LazyVStack(spacing: 16) {
                         ForEach(agents) { agent in
-                            AgentCard(agent: agent, onInstall: {
-                                installAgent(agent)
-                            })
+                            AgentCard(
+                                agent: agent,
+                                isInstalled: installedAgentIds.contains(agent.id),
+                                onInstall: {
+                                    installAgent(agent)
+                                }
+                            )
                         }
                     }
                     .padding(28)
@@ -204,12 +209,21 @@ struct MarketplaceView: View {
     private func refreshAgents() {
         isLoading = true
         errorMessage = nil
-        
+
         Task {
             do {
+                // Fetch all agents
                 let fetchedAgents = try await FirebaseService.shared.fetchAllAgents()
+
+                // Fetch user's installed agent IDs
+                var installedIds: Set<String> = []
+                if let userId = Auth.auth().currentUser?.uid {
+                    installedIds = try await FirebaseService.shared.fetchInstalledAgentIds(userId: userId)
+                }
+
                 await MainActor.run {
                     agents = fetchedAgents
+                    installedAgentIds = installedIds
                     isLoading = false
                 }
             } catch {
@@ -223,11 +237,13 @@ struct MarketplaceView: View {
     
     private func installAgent(_ agent: Agent) {
         guard let userId = Auth.auth().currentUser?.uid else { return }
-        
+
         Task {
             do {
                 try await FirebaseService.shared.installAgent(agentId: agent.id, userId: userId)
                 await MainActor.run {
+                    // Add to installed list immediately
+                    installedAgentIds.insert(agent.id)
                     // Refresh to update installation count
                     refreshAgents()
                 }
@@ -240,8 +256,9 @@ struct MarketplaceView: View {
 
 struct AgentCard: View {
     let agent: Agent
+    let isInstalled: Bool
     let onInstall: () -> Void
-    
+
     @State private var isHovered = false
     @State private var isHoveredInstall = false
     
@@ -265,31 +282,53 @@ struct AgentCard: View {
                 }
                 
                 Spacer()
-                
-                Button(action: onInstall) {
+
+                if isInstalled {
+                    // Installed indicator (non-clickable)
                     HStack(spacing: 8) {
-                        Image(systemName: "arrow.down.circle.fill")
+                        Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 13))
-                        Text("Install")
+                        Text("Installed")
                             .font(.system(size: 13, weight: .semibold))
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(Color(red: 0.2, green: 0.8, blue: 0.4))
                     .padding(.horizontal, 18)
                     .padding(.vertical, 10)
                     .background(
                         RoundedRectangle(cornerRadius: 10)
-                            .fill(Color.white.opacity(isHoveredInstall ? 0.15 : 0.1))
+                            .fill(Color(red: 0.2, green: 0.8, blue: 0.4).opacity(0.1))
                             .overlay(
                                 RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.white.opacity(isHoveredInstall ? 0.3 : 0.15), lineWidth: 1)
+                                    .stroke(Color(red: 0.2, green: 0.8, blue: 0.4).opacity(0.3), lineWidth: 1)
                             )
                     )
-                    .shadow(color: Color.white.opacity(isHoveredInstall ? 0.15 : 0), radius: 10)
-                }
-                .buttonStyle(.plain)
-                .onHover { hovering in
-                    withAnimation(.easeInOut(duration: 0.15)) {
-                        isHoveredInstall = hovering
+                } else {
+                    // Install button
+                    Button(action: onInstall) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "arrow.down.circle.fill")
+                                .font(.system(size: 13))
+                            Text("Install")
+                                .font(.system(size: 13, weight: .semibold))
+                        }
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 18)
+                        .padding(.vertical, 10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color.white.opacity(isHoveredInstall ? 0.15 : 0.1))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(Color.white.opacity(isHoveredInstall ? 0.3 : 0.15), lineWidth: 1)
+                                )
+                        )
+                        .shadow(color: Color.white.opacity(isHoveredInstall ? 0.15 : 0), radius: 10)
+                    }
+                    .buttonStyle(.plain)
+                    .onHover { hovering in
+                        withAnimation(.easeInOut(duration: 0.15)) {
+                            isHoveredInstall = hovering
+                        }
                     }
                 }
             }

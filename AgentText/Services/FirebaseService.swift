@@ -229,15 +229,18 @@ class FirebaseService {
     func createAgent(
         agentName: String,
         description: String,
-        logic: String,
+        apiUrl: String,
+        integrations: [String],
         developerId: String,
         developerName: String
     ) async throws {
         print("   [FirebaseService] createAgent called")
         print("   [FirebaseService] - Agent Name: \(agentName)")
+        print("   [FirebaseService] - API URL: \(apiUrl)")
+        print("   [FirebaseService] - Integrations: \(integrations)")
         print("   [FirebaseService] - Developer ID: \(developerId)")
         print("   [FirebaseService] - Developer Name: \(developerName)")
-        
+
         // Sanitize agent name for use as Firestore document ID
         // Firestore document IDs can contain letters, numbers, and these characters: -_~!@#$%^&*()
         // We'll replace spaces with underscores and remove invalid characters
@@ -246,11 +249,11 @@ class FirebaseService {
             .replacingOccurrences(of: "/", with: "_")
             .replacingOccurrences(of: "\\", with: "_")
             .replacingOccurrences(of: ".", with: "_")
-        
+
         // Check if agent with this name already exists
         let docRef = db.collection("agents").document(sanitizedAgentName)
         let existingDoc = try? await docRef.getDocument()
-        
+
         if existingDoc?.exists == true {
             throw NSError(
                 domain: "FirebaseService",
@@ -258,16 +261,17 @@ class FirebaseService {
                 userInfo: [NSLocalizedDescriptionKey: "An agent with this name already exists. Please choose a different name."]
             )
         }
-        
+
         // Generate unique ID for the agent
         let agentId = UUID().uuidString
         print("   [FirebaseService] Generated unique agent ID: \(agentId)")
-        
+
         let agentData: [String: Any] = [
             "agent_id": agentId, // Unique identifier
             "agent_name": agentName, // Store original name in the data
             "description": description,
-            "logic": logic,
+            "api_url": apiUrl, // Hosted API endpoint
+            "integrations": integrations, // List of enabled integrations
             "developer_id": developerId,
             "developer_name": developerName,
             "installations": 0, // Installation count
@@ -419,22 +423,44 @@ class FirebaseService {
         print("   [FirebaseService] installAgent called")
         print("   - Agent Document ID: \(agentId)")
         print("   - User ID: \(userId)")
-        
-        // Increment installation count
-        let agentRef = db.collection("agents").document(agentId)
-        try await agentRef.updateData([
-            "installations": FieldValue.increment(Int64(1))
-        ])
-        
-        // Add to user's installed agents list
+
+        // Add to user's installed agents list first (this should always succeed)
         let userRef = db.collection("users").document(userId)
         try await userRef.updateData([
             "downloadedApps": FieldValue.arrayUnion([agentId])
         ])
-        
+
+        // Try to increment installation count (may fail if user doesn't have permission)
+        do {
+            let agentRef = db.collection("agents").document(agentId)
+            try await agentRef.updateData([
+                "installations": FieldValue.increment(Int64(1))
+            ])
+            print("   [FirebaseService] Installation count incremented")
+        } catch {
+            // Log the error but don't fail the installation
+            print("   [FirebaseService] Warning: Could not increment installation count: \(error.localizedDescription)")
+            print("   [FirebaseService] This is likely due to Firestore security rules. The agent was still added to your library.")
+        }
+
         print("   [FirebaseService] Agent installed successfully")
     }
-    
+
+    func fetchInstalledAgentIds(userId: String) async throws -> Set<String> {
+        print("   [FirebaseService] fetchInstalledAgentIds called for user: \(userId)")
+
+        let userDoc = try await db.collection("users").document(userId).getDocument()
+        guard let userData = userDoc.data() else {
+            print("   [FirebaseService] No user data found")
+            return []
+        }
+
+        let installedIds = userData["downloadedApps"] as? [String] ?? []
+        print("   [FirebaseService] Found \(installedIds.count) installed agent IDs")
+
+        return Set(installedIds)
+    }
+
     func fetchInstalledAgents(userId: String) async throws -> [Agent] {
         print("   [FirebaseService] fetchInstalledAgents called for user: \(userId)")
         

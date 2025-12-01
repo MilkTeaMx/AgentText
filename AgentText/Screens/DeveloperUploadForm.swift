@@ -7,18 +7,36 @@ struct DeveloperUploadForm: View {
     
     @State private var agentName = ""
     @State private var description = ""
-    @State private var logic = ""
+    @State private var apiUrl = ""
+    @State private var selectedIntegrations: Set<String> = []
     @State private var isSubmitting = false
     @State private var showSuccess = false
     @State private var showError = false
     @State private var errorMessage = ""
     @State private var isHoveredSubmit = false
-    
+
     @FocusState private var focusedField: Field?
-    
+
     enum Field {
-        case agentName, description, logic
+        case agentName, description, apiUrl
     }
+
+    // Available integrations
+    struct Integration: Identifiable {
+        let id: String
+        let name: String
+        let icon: String
+        let description: String
+    }
+
+    let availableIntegrations = [
+        Integration(
+            id: "google_calendar",
+            name: "Google Calendar",
+            icon: "calendar",
+            description: "Access and manage Google Calendar events"
+        )
+    ]
     
     var body: some View {
         ScrollView {
@@ -108,31 +126,74 @@ struct DeveloperUploadForm: View {
                             .scrollContentBackground(.hidden)
                     }
                     
-                    // Logic
+                    // API URL
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("LOGIC (CODE)")
+                        Text("API ENDPOINT URL")
                             .font(.system(size: 11, weight: .semibold))
                             .foregroundColor(Color(white: 0.45))
                             .tracking(1.2)
-                        TextEditor(text: $logic)
-                            .frame(minHeight: 200)
-                            .padding(14)
+                        TextField("https://your-api.com/agent", text: $apiUrl)
+                            .textFieldStyle(.plain)
+                            .font(.system(size: 15, design: .monospaced))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 18)
+                            .padding(.vertical, 16)
                             .background(
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 12)
                                         .fill(Color.white.opacity(0.03))
                                     RoundedRectangle(cornerRadius: 12)
-                                        .stroke(focusedField == .logic ? Color.white.opacity(0.35) : Color.white.opacity(0.08), lineWidth: 1)
+                                        .stroke(focusedField == .apiUrl ? Color.white.opacity(0.35) : Color.white.opacity(0.08), lineWidth: 1)
                                 }
                             )
-                            .shadow(color: focusedField == .logic ? Color.white.opacity(0.08) : .clear, radius: 12)
-                            .foregroundColor(.white)
-                            .focused($focusedField, equals: .logic)
-                            .scrollContentBackground(.hidden)
-                            .font(.system(.body, design: .monospaced))
+                            .shadow(color: focusedField == .apiUrl ? Color.white.opacity(0.08) : .clear, radius: 12)
+                            .focused($focusedField, equals: .apiUrl)
+                            .onSubmit {
+                                if isFormValid {
+                                    handleSubmit()
+                                }
+                            }
+
+                        // Help text
+                        HStack(spacing: 6) {
+                            Image(systemName: "info.circle")
+                                .font(.system(size: 10))
+                            Text("Your agent's hosted API endpoint that will receive messages")
+                                .font(.system(size: 11))
+                        }
+                        .foregroundColor(Color(white: 0.4))
+                        .padding(.top, 4)
+                    }
+
+                    // Integrations
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("INTEGRATIONS")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(Color(white: 0.45))
+                            .tracking(1.2)
+
+                        Text("Select which integrations your agent needs access to (optional)")
+                            .font(.system(size: 12))
+                            .foregroundColor(Color(white: 0.5))
+
+                        VStack(spacing: 12) {
+                            ForEach(availableIntegrations) { integration in
+                                IntegrationCheckbox(
+                                    integration: integration,
+                                    isSelected: selectedIntegrations.contains(integration.id),
+                                    onToggle: {
+                                        if selectedIntegrations.contains(integration.id) {
+                                            selectedIntegrations.remove(integration.id)
+                                        } else {
+                                            selectedIntegrations.insert(integration.id)
+                                        }
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
-                
+
                 // Submit button with glow
                 Button(action: handleSubmit) {
                     HStack(spacing: 12) {
@@ -226,9 +287,19 @@ struct DeveloperUploadForm: View {
     }
     
     private var isFormValid: Bool {
-        !agentName.trimmingCharacters(in: .whitespaces).isEmpty &&
-        !description.trimmingCharacters(in: .whitespaces).isEmpty &&
-        !logic.trimmingCharacters(in: .whitespaces).isEmpty
+        let trimmedAgentName = agentName.trimmingCharacters(in: .whitespaces)
+        let trimmedDescription = description.trimmingCharacters(in: .whitespaces)
+        let trimmedApiUrl = apiUrl.trimmingCharacters(in: .whitespaces)
+
+        return !trimmedAgentName.isEmpty &&
+               !trimmedDescription.isEmpty &&
+               !trimmedApiUrl.isEmpty &&
+               isValidURL(trimmedApiUrl)
+    }
+
+    private func isValidURL(_ urlString: String) -> Bool {
+        guard let url = URL(string: urlString) else { return false }
+        return url.scheme == "http" || url.scheme == "https"
     }
     
     private func handleSubmit() {
@@ -250,35 +321,38 @@ struct DeveloperUploadForm: View {
         let developerName = "\(firstName) \(lastName)"
         let trimmedAgentName = agentName.trimmingCharacters(in: .whitespaces)
         let trimmedDescription = description.trimmingCharacters(in: .whitespaces)
-        let trimmedLogic = logic.trimmingCharacters(in: .whitespaces)
-        
+        let trimmedApiUrl = apiUrl.trimmingCharacters(in: .whitespaces)
+        let integrationsList = Array(selectedIntegrations)
+
         isSubmitting = true
         showSuccess = false
         showError = false
-        
+
         Task {
             do {
                 try await FirebaseService.shared.createAgent(
                     agentName: trimmedAgentName,
                     description: trimmedDescription,
-                    logic: trimmedLogic,
+                    apiUrl: trimmedApiUrl,
+                    integrations: integrationsList,
                     developerId: developerId,
                     developerName: developerName
                 )
-                
+
                 await MainActor.run {
                     isSubmitting = false
                     showSuccess = true
                     showError = false
-                    
+
                     // Notify parent that agent was created
                     onAgentCreated?()
-                    
+
                     // Clear form after success
                     DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                         agentName = ""
                         description = ""
-                        logic = ""
+                        apiUrl = ""
+                        selectedIntegrations = []
                         showSuccess = false
                     }
                 }
@@ -322,6 +396,73 @@ struct DeveloperUploadForm: View {
         errorMessage = message
         showError = true
         showSuccess = false
+    }
+}
+
+struct IntegrationCheckbox: View {
+    let integration: DeveloperUploadForm.Integration
+    let isSelected: Bool
+    let onToggle: () -> Void
+
+    @State private var isHovered = false
+
+    var body: some View {
+        Button(action: onToggle) {
+            HStack(spacing: 14) {
+                // Checkbox
+                ZStack {
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(isSelected ? Color(red: 0.2, green: 0.8, blue: 0.4) : Color.white.opacity(0.15), lineWidth: 1.5)
+                        .frame(width: 20, height: 20)
+                        .background(
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(isSelected ? Color(red: 0.2, green: 0.8, blue: 0.4).opacity(0.15) : Color.clear)
+                        )
+
+                    if isSelected {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(Color(red: 0.2, green: 0.8, blue: 0.4))
+                    }
+                }
+
+                // Icon
+                Image(systemName: integration.icon)
+                    .font(.system(size: 18))
+                    .foregroundColor(isSelected ? Color(red: 0.2, green: 0.8, blue: 0.4) : Color(white: 0.6))
+                    .frame(width: 24)
+
+                // Text content
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(integration.name)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.white)
+
+                    Text(integration.description)
+                        .font(.system(size: 11))
+                        .foregroundColor(Color(white: 0.5))
+                        .lineLimit(1)
+                }
+
+                Spacer()
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color.white.opacity(isHovered ? 0.05 : 0.02))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(isSelected ? Color(red: 0.2, green: 0.8, blue: 0.4).opacity(0.3) : Color.white.opacity(isHovered ? 0.15 : 0.08), lineWidth: 1)
+                    )
+            )
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering in
+            withAnimation(.easeInOut(duration: 0.15)) {
+                isHovered = hovering
+            }
+        }
     }
 }
 
