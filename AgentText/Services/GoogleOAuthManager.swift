@@ -372,7 +372,9 @@ class GoogleOAuthManager: NSObject, ObservableObject {
         }
 
         db.collection("users").document(userId).updateData([
-            "googleOAuth": tokenData
+            "googleOAuth": tokenData,
+            // Also save to integrationKeys so agents can access it
+            "integrationKeys.google_calendar": tokenResponse.access_token
         ]) { error in
             if let error = error {
                 print("❌ [GoogleOAuth] Error saving tokens to Firestore: \(error.localizedDescription)")
@@ -389,7 +391,9 @@ class GoogleOAuthManager: NSObject, ObservableObject {
         db.collection("users").document(userId).updateData([
             "googleOAuth.accessToken": accessToken,
             "googleOAuth.expiresAt": Timestamp(date: Date().addingTimeInterval(TimeInterval(expiresIn))),
-            "googleOAuth.updatedAt": FieldValue.serverTimestamp()
+            "googleOAuth.updatedAt": FieldValue.serverTimestamp(),
+            // Also update integrationKeys so agents always have the latest token
+            "integrationKeys.google_calendar": accessToken
         ]) { error in
             if let error = error {
                 print("❌ [GoogleOAuth] Error updating token in Firestore: \(error.localizedDescription)")
@@ -437,7 +441,9 @@ class GoogleOAuthManager: NSObject, ObservableObject {
         let db = Firestore.firestore()
 
         db.collection("users").document(userId).updateData([
-            "googleOAuth": FieldValue.delete()
+            "googleOAuth": FieldValue.delete(),
+            // Also remove from integrationKeys
+            "integrationKeys.google_calendar": FieldValue.delete()
         ]) { error in
             if let error = error {
                 print("❌ [GoogleOAuth] Error removing tokens from Firestore: \(error.localizedDescription)")

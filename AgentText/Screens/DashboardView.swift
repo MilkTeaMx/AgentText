@@ -8,6 +8,7 @@ struct DashboardView: View {
     enum DashboardSection: String, CaseIterable {
         case marketplace = "Marketplace"
         case installedAgents = "Installed Agents"
+        case integrations = "Integrations"
         case developerConsole = "Developer Console"
         case profile = "Profile"
 
@@ -15,6 +16,7 @@ struct DashboardView: View {
             switch self {
             case .marketplace: return "square.grid.2x2"
             case .installedAgents: return "app.badge"
+            case .integrations: return "puzzlepiece.extension"
             case .developerConsole: return "wrench.and.screwdriver"
             case .profile: return "person.circle"
             }
@@ -35,6 +37,9 @@ struct DashboardView: View {
                         .environmentObject(authManager)
                 case .installedAgents:
                     InstalledAgentsView()
+                        .environmentObject(authManager)
+                case .integrations:
+                    IntegrationsView()
                         .environmentObject(authManager)
                 case .developerConsole:
                     DeveloperConsoleView()

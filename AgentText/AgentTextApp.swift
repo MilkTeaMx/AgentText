@@ -97,8 +97,6 @@ struct MainView: View {
     @EnvironmentObject var authManager: AuthManager
     @EnvironmentObject var messageWatcher: MessageWatcherService
     @EnvironmentObject var apiServerManager: APIServerManager
-    @State private var showMentionAlert = false
-    @State private var currentMention: DetectedMention?
     @State private var serverStarted = false
     @State private var isHoveredLogout = false
     
@@ -206,19 +204,6 @@ struct MainView: View {
                 await messageWatcher.stopWatching()
             }
         }
-        .onChange(of: messageWatcher.latestMention) { oldValue, newMention in
-            if let mention = newMention, mention != oldValue {
-                currentMention = mention
-                showMentionAlert = true
-            }
-        }
-        .alert("Mention Detected!", isPresented: $showMentionAlert) {
-            Button("OK", role: .cancel) { }
-        } message: {
-            if let mention = currentMention {
-                Text(formatMentionMessage(mention))
-            }
-        }
     }
     
     private var userInitials: String {
@@ -268,29 +253,5 @@ struct MainView: View {
         case .error(let msg):
             return "Error: \(msg)"
         }
-    }
-    
-    private func formatMentionMessage(_ mention: DetectedMention) -> String {
-        print("[MainView] formatMentionMessage called")
-        print("[MainView] mention.mention: \(mention.mention)")
-        print("[MainView] mention.contextCount: \(mention.contextCount)")
-        print("[MainView] mention.contextMessages.count: \(mention.contextMessages.count)")
-        
-        var message = "@\(mention.mention)"
-        
-        if mention.contextCount > 0 && !mention.contextMessages.isEmpty {
-            message += "\n\nLast \(mention.contextMessages.count) message(s):\n"
-            
-            for msg in mention.contextMessages {
-                let sender = msg.isFromMe ? "You" : (msg.sender ?? "Other")
-                message += "\n\(sender): \(msg.text)"
-            }
-        } else if mention.contextCount > 0 {
-            print("[MainView] contextCount > 0 but contextMessages is empty!")
-            message += "\n\n(No context messages found)"
-        }
-        
-        print("[MainView] Final message: \(message)")
-        return message
     }
 }

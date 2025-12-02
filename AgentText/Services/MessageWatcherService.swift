@@ -58,7 +58,9 @@ class MessageWatcherService: NSObject, ObservableObject, URLSessionDataDelegate 
     private var session: URLSession?
     private let baseURL = "http://localhost:3000"
     private var buffer = ""
-    
+    private var processedMessageIds: Set<String> = []
+    private let maxProcessedMessages = 100
+
     override init() {
         super.init()
     }
@@ -137,7 +139,8 @@ class MessageWatcherService: NSObject, ObservableObject, URLSessionDataDelegate 
         session?.invalidateAndCancel()
         session = nil
         buffer = ""
-        
+        processedMessageIds.removeAll()
+
         await MainActor.run {
             isWatching = false
             connectionStatus = .disconnected
@@ -293,18 +296,36 @@ class MessageWatcherService: NSObject, ObservableObject, URLSessionDataDelegate 
     private func processMessage(_ messageData: [String: Any]) {
         // Debug: print the entire message data
         print("[MessageWatcher] Received messageData: \(messageData)")
-        
+
+        // Check for message ID to prevent duplicate processing
+        if let messageId = messageData["id"] as? String {
+            if processedMessageIds.contains(messageId) {
+                print("[MessageWatcher] Skipping duplicate message: \(messageId)")
+                return
+            }
+
+            // Add to processed set
+            processedMessageIds.insert(messageId)
+
+            // Limit the size of the processed set to prevent memory issues
+            if processedMessageIds.count > maxProcessedMessages {
+                // Remove the oldest half when we exceed the limit
+                let toRemove = processedMessageIds.prefix(maxProcessedMessages / 2)
+                processedMessageIds.subtract(toRemove)
+            }
+        }
+
         // Only process messages sent by the user (isFromMe = true)
         guard let isFromMe = messageData["isFromMe"] as? Bool, isFromMe else {
             print("[MessageWatcher] Skipping message: isFromMe=\(messageData["isFromMe"] ?? "nil")")
             return
         }
-        
+
         guard let text = messageData["text"] as? String else {
             print("[MessageWatcher] Skipping message: no text")
             return
         }
-        
+
         // Get the chatId for fetching context messages
         let chatId = messageData["chatId"] as? String
         
@@ -323,13 +344,13 @@ class MessageWatcherService: NSObject, ObservableObject, URLSessionDataDelegate 
                 Task {
                     // Small delay to ensure the trigger message is in the database
                     try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
-                    
+
                     let contextMessages = await fetchContextMessages(chatId: chatId, count: count)
                     print("[MessageWatcher] Fetched \(contextMessages.count) context messages")
                     for (i, ctx) in contextMessages.enumerated() {
                         print("[MessageWatcher] Context[\(i)]: \(ctx.text)")
                     }
-                    
+
                     let detected = DetectedMention(
                         mention: mention,
                         fullText: text,
@@ -337,10 +358,19 @@ class MessageWatcherService: NSObject, ObservableObject, URLSessionDataDelegate 
                         contextMessages: contextMessages,
                         contextCount: count
                     )
-                    
+
                     await MainActor.run {
                         self.latestMention = detected
                     }
+
+                    // Invoke the agent with the context messages
+                    print("[MessageWatcher] Invoking agent '\(mention)' with \(contextMessages.count) messages")
+                    await AgentInvocationService.shared.invokeAgent(
+                        agentName: mention,
+                        contextMessages: contextMessages,
+                        count: count,
+                        chatId: chatId
+                    )
                 }
             } else {
                 let detected = DetectedMention(
@@ -348,9 +378,20 @@ class MessageWatcherService: NSObject, ObservableObject, URLSessionDataDelegate 
                     fullText: text,
                     timestamp: Date()
                 )
-                
+
                 Task { @MainActor in
                     self.latestMention = detected
+                }
+
+                // If no count specified, still invoke the agent with empty context
+                print("[MessageWatcher] Invoking agent '\(mention)' with no context")
+                Task {
+                    await AgentInvocationService.shared.invokeAgent(
+                        agentName: mention,
+                        contextMessages: [],
+                        count: 0,
+                        chatId: chatId
+                    )
                 }
             }
         }

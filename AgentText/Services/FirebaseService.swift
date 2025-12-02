@@ -199,6 +199,7 @@ class FirebaseService {
             "enabledApps": [],
             "likedAgents": [],
             "dislikedAgents": [],
+            "integrationKeys": [:], // Store API keys for integrations (e.g., {"google_calendar": "key123"})
             "createdAt": FieldValue.serverTimestamp()
         ]
         
@@ -223,7 +224,19 @@ class FirebaseService {
             "enabledApps": appIds
         ])
     }
-    
+
+    func updateIntegrationKey(uid: String, integration: String, apiKey: String) async throws {
+        try await db.collection("users").document(uid).updateData([
+            "integrationKeys.\(integration)": apiKey
+        ])
+    }
+
+    func removeIntegrationKey(uid: String, integration: String) async throws {
+        try await db.collection("users").document(uid).updateData([
+            "integrationKeys.\(integration)": FieldValue.delete()
+        ])
+    }
+
     // MARK: - Agent Management
     
     func createAgent(
