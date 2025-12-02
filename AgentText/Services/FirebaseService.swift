@@ -570,6 +570,9 @@ class FirebaseService {
         var newDislikedAgents = dislikedAgents
         var isLiked = false
         
+        var newDislikes = currentDislikes
+        var needsDislikeUpdate = false
+        
         if isCurrentlyLiked {
             // Remove like
             newLikes = max(0, currentLikes - 1)
@@ -585,18 +588,23 @@ class FirebaseService {
             
             // Remove from dislikes if it was disliked
             if isCurrentlyDisliked {
-                let newDislikes = max(0, currentDislikes - 1)
-                try await agentRef.updateData([
-                    "dislikes": newDislikes
-                ])
+                newDislikes = max(0, currentDislikes - 1)
                 newDislikedAgents.removeAll { $0 == agentId }
+                needsDislikeUpdate = true
             }
         }
         
-        // Update agent likes
-        try await agentRef.updateData([
-            "likes": newLikes
-        ])
+        // Update agent likes (and dislikes if needed) in a single operation
+        if needsDislikeUpdate {
+            try await agentRef.updateData([
+                "likes": newLikes,
+                "dislikes": newDislikes
+            ])
+        } else {
+            try await agentRef.updateData([
+                "likes": newLikes
+            ])
+        }
         
         // Update user's liked/disliked agents
         try await db.collection("users").document(userId).updateData([
@@ -630,6 +638,9 @@ class FirebaseService {
         var newDislikedAgents = dislikedAgents
         var isDisliked = false
         
+        var newLikes = currentLikes
+        var needsLikeUpdate = false
+        
         if isCurrentlyDisliked {
             // Remove dislike
             newDislikes = max(0, currentDislikes - 1)
@@ -645,18 +656,23 @@ class FirebaseService {
             
             // Remove from likes if it was liked
             if isCurrentlyLiked {
-                let newLikes = max(0, currentLikes - 1)
-                try await agentRef.updateData([
-                    "likes": newLikes
-                ])
+                newLikes = max(0, currentLikes - 1)
                 newLikedAgents.removeAll { $0 == agentId }
+                needsLikeUpdate = true
             }
         }
         
-        // Update agent dislikes
-        try await agentRef.updateData([
-            "dislikes": newDislikes
-        ])
+        // Update agent dislikes (and likes if needed) in a single operation
+        if needsLikeUpdate {
+            try await agentRef.updateData([
+                "dislikes": newDislikes,
+                "likes": newLikes
+            ])
+        } else {
+            try await agentRef.updateData([
+                "dislikes": newDislikes
+            ])
+        }
         
         // Update user's liked/disliked agents
         try await db.collection("users").document(userId).updateData([

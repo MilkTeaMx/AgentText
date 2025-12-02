@@ -243,6 +243,26 @@ struct InstalledAgentCard: View {
                 .foregroundColor(Color(white: 0.7))
                 .lineLimit(3)
             
+            // How to access
+            HStack(spacing: 8) {
+                Image(systemName: "at")
+                    .font(.system(size: 12))
+                    .foregroundColor(Color(white: 0.5))
+                Text("Call: @\(agent.agentName)")
+                    .font(.system(size: 13, design: .monospaced))
+                    .foregroundColor(Color(white: 0.6))
+            }
+            .padding(.vertical, 8)
+            .padding(.horizontal, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.white.opacity(0.05))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                    )
+            )
+            
             // Stats and reaction buttons
             HStack(spacing: 24) {
                 StatBadge(icon: "arrow.down.circle", value: "\(agent.installations)", color: Color(white: 0.5))

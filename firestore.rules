@@ -8,39 +8,21 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Helper function to check if user is the owner
-    function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
-    }
-
     // Users collection
     match /users/{userId} {
-      // Users can read their own data
-      allow read: if isOwner(userId);
-
-      // Users can create their own user document
-      allow create: if isOwner(userId);
-
-      // Users can update their own data
-      allow update: if isOwner(userId);
-
-      // Users cannot delete their own data (add this if needed)
-      allow delete: if false;
+      allow read, write: if true;
     }
 
     // Agents collection
     match /agents/{agentId} {
-      // Anyone authenticated can read agents (for marketplace)
-      allow read: if isAuthenticated();
+      allow read: if true; // Anyone can read
 
-      // Only the developer who created the agent can create/update/delete
-      // except for the installations, likes, and dislikes fields
-      allow create: if isAuthenticated() &&
-                      request.resource.data.developerId == request.auth.uid;
+      allow create: if isAuthenticated() && 
+                      request.resource.data.developer_id == request.auth.uid; // Authenticated users can create, must set themselves as developer
 
       allow update: if isAuthenticated() && (
-        // Developer can update their own agent
-        resource.data.developerId == request.auth.uid ||
+        // Creator can update their own agent (all fields)
+        resource.data.developer_id == request.auth.uid ||
         // OR any authenticated user can increment installations
         (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['installations']) &&
          request.resource.data.installations == resource.data.installations + 1) ||
@@ -52,17 +34,18 @@ service cloud.firestore {
         (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['dislikes']) &&
          request.resource.data.dislikes >= resource.data.dislikes - 1 &&
          request.resource.data.dislikes <= resource.data.dislikes + 1) ||
+        // OR any authenticated user can update likes and dislikes together (when toggling between them)
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes', 'dislikes']) &&
+         request.resource.data.likes >= resource.data.likes - 1 &&
+         request.resource.data.likes <= resource.data.likes + 1 &&
+         request.resource.data.dislikes >= resource.data.dislikes - 1 &&
+         request.resource.data.dislikes <= resource.data.dislikes + 1) ||
         // OR any authenticated user can update multiple stat fields at once
         (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['installations', 'likes', 'dislikes']))
       );
 
-      allow delete: if isAuthenticated() &&
-                      resource.data.developerId == request.auth.uid;
-    }
-
-    // Default deny all other collections
-    match /{document=**} {
-      allow read, write: if false;
+      allow delete: if isAuthenticated() && 
+                       resource.data.developer_id == request.auth.uid; // Only creator can delete
     }
   }
 }

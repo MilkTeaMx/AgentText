@@ -11,6 +11,7 @@ struct IntegrationsView: View {
 
     // Temporary state for editing keys
     @State private var googleCalendarKey = ""
+    @State private var notionKey = ""
 
     // Available integrations
     let availableIntegrations = [
@@ -20,6 +21,13 @@ struct IntegrationsView: View {
             icon: "calendar",
             description: "Access and manage your Google Calendar events",
             placeholder: "Enter your Google Calendar API key"
+        ),
+        IntegrationInfo(
+            id: "notion",
+            name: "Notion",
+            icon: "doc.text",
+            description: "Access and manage your Notion pages and databases",
+            placeholder: "Enter your Notion integration token (secret_...)"
         )
     ]
 
@@ -154,6 +162,8 @@ struct IntegrationsView: View {
         switch integrationId {
         case "google_calendar":
             return $googleCalendarKey
+        case "notion":
+            return $notionKey
         default:
             return .constant("")
         }
@@ -173,6 +183,7 @@ struct IntegrationsView: View {
                 await MainActor.run {
                     integrationKeys = keys
                     googleCalendarKey = keys["google_calendar"] ?? ""
+                    notionKey = keys["notion"] ?? ""
                     isLoading = false
                 }
             } catch {
@@ -321,7 +332,7 @@ struct IntegrationKeyField: View {
             HStack(spacing: 6) {
                 Image(systemName: "questionmark.circle")
                     .font(.system(size: 10))
-                Text("Get your API key from the Google Calendar API console")
+                Text(helpText(for: integration.id))
                     .font(.system(size: 11))
             }
             .foregroundColor(Color(white: 0.4))
@@ -340,6 +351,17 @@ struct IntegrationKeyField: View {
             withAnimation(.easeInOut(duration: 0.2)) {
                 isHovered = hovering
             }
+        }
+    }
+
+    private func helpText(for integrationId: String) -> String {
+        switch integrationId {
+        case "google_calendar":
+            return "Get your API key from the Google Calendar API console"
+        case "notion":
+            return "Get your token from https://www.notion.com/my-integrations"
+        default:
+            return "Get your API key from the service provider"
         }
     }
 }
