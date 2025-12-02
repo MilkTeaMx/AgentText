@@ -12,6 +12,45 @@ struct MarketplaceView: View {
     @State private var isHoveredTest = false
     @State private var isHoveredRefresh = false
     @State private var installedAgentIds: Set<String> = []
+    
+    // Filter and sort states
+    @State private var searchText = ""
+    @State private var sortOption: SortOption = .name
+    
+    enum SortOption: String, CaseIterable {
+        case name = "Name"
+        case likes = "Most Liked"
+        
+        var icon: String {
+            switch self {
+            case .name: return "textformat.abc"
+            case .likes: return "hand.thumbsup.fill"
+            }
+        }
+    }
+    
+    private var filteredAndSortedAgents: [Agent] {
+        var filtered = agents
+        
+        // Filter by name
+        if !searchText.isEmpty {
+            filtered = filtered.filter { agent in
+                agent.agentName.localizedCaseInsensitiveContains(searchText) ||
+                agent.description.localizedCaseInsensitiveContains(searchText) ||
+                agent.developerName.localizedCaseInsensitiveContains(searchText)
+            }
+        }
+        
+        // Sort
+        switch sortOption {
+        case .name:
+            filtered.sort { $0.agentName.localizedCompare($1.agentName) == .orderedAscending }
+        case .likes:
+            filtered.sort { $0.likes > $1.likes }
+        }
+        
+        return filtered
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -78,6 +117,12 @@ struct MarketplaceView: View {
             
             GlowingDivider(opacity: 0.1)
             
+            // Filter and Sort Controls
+            if !isLoading && !agents.isEmpty {
+                filterAndSortBar
+                GlowingDivider(opacity: 0.1)
+            }
+            
             // Content
             if isLoading {
                 Spacer()
@@ -138,14 +183,18 @@ struct MarketplaceView: View {
             } else {
                 ScrollView {
                     LazyVStack(spacing: 16) {
-                        ForEach(agents) { agent in
-                            AgentCard(
-                                agent: agent,
-                                isInstalled: installedAgentIds.contains(agent.id),
-                                onInstall: {
-                                    installAgent(agent)
-                                }
-                            )
+                        if filteredAndSortedAgents.isEmpty {
+                            emptyFilterResults
+                        } else {
+                            ForEach(filteredAndSortedAgents) { agent in
+                                AgentCard(
+                                    agent: agent,
+                                    isInstalled: installedAgentIds.contains(agent.id),
+                                    onInstall: {
+                                        installAgent(agent)
+                                    }
+                                )
+                            }
                         }
                     }
                     .padding(28)
@@ -251,6 +300,107 @@ struct MarketplaceView: View {
                 print("Error installing agent: \(error)")
             }
         }
+    }
+    
+    // MARK: - Filter and Sort UI
+    
+    private var filterAndSortBar: some View {
+        HStack(spacing: 16) {
+            // Search field
+            searchField
+            
+            // Sort dropdown
+            sortMenu
+        }
+        .padding(.horizontal, 28)
+        .padding(.vertical, 16)
+        .background(Color(white: 0.04))
+    }
+    
+    private var searchField: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 14))
+                .foregroundColor(Color(white: 0.5))
+            
+            TextField("Search agents by name...", text: $searchText)
+                .textFieldStyle(.plain)
+                .font(.system(size: 14))
+                .foregroundColor(.white)
+            
+            if !searchText.isEmpty {
+                Button(action: { searchText = "" }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 14))
+                        .foregroundColor(Color(white: 0.5))
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color.white.opacity(0.05))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                )
+        )
+    }
+    
+    private var sortMenu: some View {
+        Menu {
+            ForEach(SortOption.allCases, id: \.self) { option in
+                Button(action: { sortOption = option }) {
+                    HStack {
+                        Image(systemName: option.icon)
+                        Text(option.rawValue)
+                        if sortOption == option {
+                            Spacer()
+                            Image(systemName: "checkmark")
+                        }
+                    }
+                }
+            }
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: sortOption.icon)
+                    .font(.system(size: 13))
+                Text("Sort: \(sortOption.rawValue)")
+                    .font(.system(size: 13, weight: .medium))
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 10))
+            }
+            .foregroundColor(.white)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color.white.opacity(0.05))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                    )
+            )
+        }
+        .buttonStyle(.plain)
+    }
+    
+    private var emptyFilterResults: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 48))
+                .foregroundColor(Color(white: 0.3))
+            Text("No agents found")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(.white)
+            Text("Try adjusting your search or filter")
+                .font(.system(size: 13))
+                .foregroundColor(Color(white: 0.5))
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 60)
     }
 }
 
