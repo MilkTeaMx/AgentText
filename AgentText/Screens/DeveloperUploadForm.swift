@@ -35,6 +35,12 @@ struct DeveloperUploadForm: View {
             name: "Google Calendar",
             icon: "calendar",
             description: "Access and manage Google Calendar events"
+        ),
+        Integration(
+            id: "notion",
+            name: "Notion",
+            icon: "doc.text",
+            description: "Access and manage Notion pages and databases"
         )
     ]
     

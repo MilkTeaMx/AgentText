@@ -8,13 +8,16 @@
 
 /* Begin PBXBuildFile section */
 		19CBB5212ED939F2005A15DA /* AgentTextApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC83322ED6CE7000634E5F /* AgentTextApp.swift */; };
-		D8BC17662EDD1F2500634E5F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D8BC17622EDD1F2500634E5F /* GoogleService-Info.plist */; };
 		D8BC0BB82EDD1DE200634E5F /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = D8BC0BB72EDD1DE200634E5F /* FirebaseAnalytics */; };
 		D8BC0BBA2EDD1DE200634E5F /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = D8BC0BB92EDD1DE200634E5F /* FirebaseAuth */; };
 		D8BC0BBC2EDD1DE200634E5F /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = D8BC0BBB2EDD1DE200634E5F /* FirebaseCore */; };
 		D8BC0BBE2EDD1DE200634E5F /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = D8BC0BBD2EDD1DE200634E5F /* FirebaseDatabase */; };
 		D8BC0BC02EDD1DE200634E5F /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = D8BC0BBF2EDD1DE200634E5F /* FirebaseFirestore */; };
 		D8BC0BC22EDD1DE200634E5F /* FirebaseFirestoreCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = D8BC0BC12EDD1DE200634E5F /* FirebaseFirestoreCombine-Community */; };
+		D8BC17662EDD1F2500634E5F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D8BC17622EDD1F2500634E5F /* GoogleService-Info.plist */; };
+		D8BC17692EDD1F2500634E5F /* AgentInvocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC17682EDD1F2500634E5F /* AgentInvocationService.swift */; };
+		D8BC176E2EDD1F2500634E5F /* NotionOAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC176C2EDD1F2500634E5F /* NotionOAuthManager.swift */; };
+		D8BC176F2EDD1F2500634E5F /* NotionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC176D2EDD1F2500634E5F /* NotionService.swift */; };
 		D8BC17782EDD1F2500634E5F /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC173A2EDD1F2500634E5F /* DesignSystem.swift */; };
 		D8BC17792EDD1F2500634E5F /* LogoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC173B2EDD1F2500634E5F /* LogoView.swift */; };
 		D8BC177A2EDD1F2500634E5F /* LuminescentCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC173C2EDD1F2500634E5F /* LuminescentCard.swift */; };
@@ -29,7 +32,6 @@
 		D8BC17832EDD1F2500634E5F /* PermissionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC17472EDD1F2500634E5F /* PermissionView.swift */; };
 		D8BC17842EDD1F2500634E5F /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC17482EDD1F2500634E5F /* ProfileView.swift */; };
 		D8BC17852EDD1F2500634E5F /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC17492EDD1F2500634E5F /* SignInView.swift */; };
-		D8BC176B2EDD1F2500634E5F /* IntegrationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC176A2EDD1F2500634E5F /* IntegrationsView.swift */; };
 		D8BC17862EDD1F2500634E5F /* AgentTextClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC17572EDD1F2500634E5F /* AgentTextClient.swift */; };
 		D8BC17872EDD1F2500634E5F /* APIServerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC17582EDD1F2500634E5F /* APIServerManager.swift */; };
 		D8BC17882EDD1F2500634E5F /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC17592EDD1F2500634E5F /* AuthManager.swift */; };
@@ -37,10 +39,14 @@
 		D8BC178A2EDD1F2500634E5F /* GoogleCalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC175B2EDD1F2500634E5F /* GoogleCalendarService.swift */; };
 		D8BC178B2EDD1F2500634E5F /* GoogleOAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC175C2EDD1F2500634E5F /* GoogleOAuthManager.swift */; };
 		D8BC178C2EDD1F2500634E5F /* MessageWatcherService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC175D2EDD1F2500634E5F /* MessageWatcherService.swift */; };
-		D8BC17692EDD1F2500634E5F /* AgentInvocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC17682EDD1F2500634E5F /* AgentInvocationService.swift */; };
-		D8BC176E2EDD1F2500634E5F /* NotionOAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC176C2EDD1F2500634E5F /* NotionOAuthManager.swift */; };
-		D8BC176F2EDD1F2500634E5F /* NotionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC176D2EDD1F2500634E5F /* NotionService.swift */; };
 		D8BC178D2EDD1F2500634E5F /* AgentTextApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC17602EDD1F2500634E5F /* AgentTextApp.swift */; };
+		D8BC17902EDFA1C400634E5F /* IntegrationDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC178F2EDFA1C400634E5F /* IntegrationDetailView.swift */; };
+		D8BC17922EDFA1CD00634E5F /* IntegrationGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC17912EDFA1CD00634E5F /* IntegrationGrid.swift */; };
+		D8BC17942EDFA1D200634E5F /* IntegrationHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC17932EDFA1D200634E5F /* IntegrationHeader.swift */; };
+		D8BC17962EDFA1D500634E5F /* IntegrationLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC17952EDFA1D500634E5F /* IntegrationLoadingView.swift */; };
+		D8BC17982EDFA1DA00634E5F /* IntegrationModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC17972EDFA1DA00634E5F /* IntegrationModels.swift */; };
+		D8BC179A2EDFA1DF00634E5F /* IntegrationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC17992EDFA1DF00634E5F /* IntegrationsView.swift */; };
+		D8BC179C2EDFA1E600634E5F /* IntegrationTile.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC179B2EDFA1E600634E5F /* IntegrationTile.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -71,7 +77,6 @@
 		D8BC17472EDD1F2500634E5F /* PermissionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionView.swift; sourceTree = "<group>"; };
 		D8BC17482EDD1F2500634E5F /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		D8BC17492EDD1F2500634E5F /* SignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInView.swift; sourceTree = "<group>"; };
-		D8BC176A2EDD1F2500634E5F /* IntegrationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationsView.swift; sourceTree = "<group>"; };
 		D8BC174B2EDD1F2500634E5F /* batch_send.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = batch_send.py; sourceTree = "<group>"; };
 		D8BC174C2EDD1F2500634E5F /* get_messages.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = get_messages.py; sourceTree = "<group>"; };
 		D8BC174D2EDD1F2500634E5F /* get_unread.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = get_unread.py; sourceTree = "<group>"; };
@@ -90,17 +95,22 @@
 		D8BC175B2EDD1F2500634E5F /* GoogleCalendarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleCalendarService.swift; sourceTree = "<group>"; };
 		D8BC175C2EDD1F2500634E5F /* GoogleOAuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleOAuthManager.swift; sourceTree = "<group>"; };
 		D8BC175D2EDD1F2500634E5F /* MessageWatcherService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageWatcherService.swift; sourceTree = "<group>"; };
-		D8BC17682EDD1F2500634E5F /* AgentInvocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentInvocationService.swift; sourceTree = "<group>"; };
-		D8BC17702EDD1F2500634E5F /* GoogleCalendar */ = {isa = PBXGroup; children = (D8BC175B2EDD1F2500634E5F /* GoogleCalendarService.swift */, D8BC175C2EDD1F2500634E5F /* GoogleOAuthManager.swift */); path = GoogleCalendar; sourceTree = "<group>"; };
-		D8BC17712EDD1F2500634E5F /* Notion */ = {isa = PBXGroup; children = (D8BC176C2EDD1F2500634E5F /* NotionOAuthManager.swift */, D8BC176D2EDD1F2500634E5F /* NotionService.swift */); path = Notion; sourceTree = "<group>"; };
-		D8BC176C2EDD1F2500634E5F /* NotionOAuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotionOAuthManager.swift; sourceTree = "<group>"; };
-		D8BC176D2EDD1F2500634E5F /* NotionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotionService.swift; sourceTree = "<group>"; };
 		D8BC175F2EDD1F2500634E5F /* AgentText.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AgentText.entitlements; sourceTree = "<group>"; };
 		D8BC17602EDD1F2500634E5F /* AgentTextApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentTextApp.swift; sourceTree = "<group>"; };
 		D8BC17612EDD1F2500634E5F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D8BC17622EDD1F2500634E5F /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		D8BC17632EDD1F2500634E5F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D8BC17642EDD1F2500634E5F /* package-lock.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "package-lock.json"; sourceTree = "<group>"; };
+		D8BC17682EDD1F2500634E5F /* AgentInvocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentInvocationService.swift; sourceTree = "<group>"; };
+		D8BC176C2EDD1F2500634E5F /* NotionOAuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotionOAuthManager.swift; sourceTree = "<group>"; };
+		D8BC176D2EDD1F2500634E5F /* NotionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotionService.swift; sourceTree = "<group>"; };
+		D8BC178F2EDFA1C400634E5F /* IntegrationDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationDetailView.swift; sourceTree = "<group>"; };
+		D8BC17912EDFA1CD00634E5F /* IntegrationGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationGrid.swift; sourceTree = "<group>"; };
+		D8BC17932EDFA1D200634E5F /* IntegrationHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationHeader.swift; sourceTree = "<group>"; };
+		D8BC17952EDFA1D500634E5F /* IntegrationLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationLoadingView.swift; sourceTree = "<group>"; };
+		D8BC17972EDFA1DA00634E5F /* IntegrationModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationModels.swift; sourceTree = "<group>"; };
+		D8BC17992EDFA1DF00634E5F /* IntegrationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationsView.swift; sourceTree = "<group>"; };
+		D8BC179B2EDFA1E600634E5F /* IntegrationTile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationTile.swift; sourceTree = "<group>"; };
 		D8BC831F2ED6CDC700634E5F /* AgentText.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AgentText.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8BC83322ED6CE7000634E5F /* AgentTextApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AgentTextApp.swift; path = AgentText/AgentTextApp.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -153,14 +163,20 @@
 				D8BC17402EDD1F2500634E5F /* APITestView.swift */,
 				D8BC17412EDD1F2500634E5F /* DashboardView.swift */,
 				D8BC17422EDD1F2500634E5F /* DeveloperConsoleView.swift */,
+				D8BC17912EDFA1CD00634E5F /* IntegrationGrid.swift */,
 				D8BC17432EDD1F2500634E5F /* DeveloperUploadForm.swift */,
-				D8BC176A2EDD1F2500634E5F /* IntegrationsView.swift */,
 				D8BC17442EDD1F2500634E5F /* LoginView.swift */,
 				D8BC17452EDD1F2500634E5F /* MarketplaceView.swift */,
+				D8BC17952EDFA1D500634E5F /* IntegrationLoadingView.swift */,
+				D8BC17992EDFA1DF00634E5F /* IntegrationsView.swift */,
 				D8BC17462EDD1F2500634E5F /* MyAgentsView.swift */,
 				D8BC17472EDD1F2500634E5F /* PermissionView.swift */,
 				D8BC17482EDD1F2500634E5F /* ProfileView.swift */,
+				D8BC179B2EDFA1E600634E5F /* IntegrationTile.swift */,
+				D8BC17972EDFA1DA00634E5F /* IntegrationModels.swift */,
+				D8BC17932EDFA1D200634E5F /* IntegrationHeader.swift */,
 				D8BC17492EDD1F2500634E5F /* SignInView.swift */,
+				D8BC178F2EDFA1C400634E5F /* IntegrationDetailView.swift */,
 			);
 			path = Screens;
 			sourceTree = "<group>";
@@ -214,6 +230,24 @@
 				D8BC17642EDD1F2500634E5F /* package-lock.json */,
 			);
 			path = AgentText;
+			sourceTree = "<group>";
+		};
+		D8BC17702EDD1F2500634E5F /* GoogleCalendar */ = {
+			isa = PBXGroup;
+			children = (
+				D8BC175B2EDD1F2500634E5F /* GoogleCalendarService.swift */,
+				D8BC175C2EDD1F2500634E5F /* GoogleOAuthManager.swift */,
+			);
+			path = GoogleCalendar;
+			sourceTree = "<group>";
+		};
+		D8BC17712EDD1F2500634E5F /* Notion */ = {
+			isa = PBXGroup;
+			children = (
+				D8BC176C2EDD1F2500634E5F /* NotionOAuthManager.swift */,
+				D8BC176D2EDD1F2500634E5F /* NotionService.swift */,
+			);
+			path = Notion;
 			sourceTree = "<group>";
 		};
 		D8BC83162ED6CDC700634E5F = {
@@ -309,6 +343,17 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		D8BC17672EDD1F2500634E5F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D8BC17662EDD1F2500634E5F /* GoogleService-Info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXShellScriptBuildPhase section */
 		19CBB5252ED93FFF005A15DA /* Fix Dylib Paths */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -343,22 +388,28 @@
 				D8BC177D2EDD1F2500634E5F /* DashboardView.swift in Sources */,
 				D8BC177E2EDD1F2500634E5F /* DeveloperConsoleView.swift in Sources */,
 				D8BC177F2EDD1F2500634E5F /* DeveloperUploadForm.swift in Sources */,
+				D8BC17902EDFA1C400634E5F /* IntegrationDetailView.swift in Sources */,
 				D8BC17802EDD1F2500634E5F /* LoginView.swift in Sources */,
 				D8BC17812EDD1F2500634E5F /* MarketplaceView.swift in Sources */,
+				D8BC17942EDFA1D200634E5F /* IntegrationHeader.swift in Sources */,
 				D8BC17822EDD1F2500634E5F /* MyAgentsView.swift in Sources */,
+				D8BC17962EDFA1D500634E5F /* IntegrationLoadingView.swift in Sources */,
 				D8BC17832EDD1F2500634E5F /* PermissionView.swift in Sources */,
 				D8BC17842EDD1F2500634E5F /* ProfileView.swift in Sources */,
 				D8BC17852EDD1F2500634E5F /* SignInView.swift in Sources */,
-				D8BC176B2EDD1F2500634E5F /* IntegrationsView.swift in Sources */,
 				D8BC17862EDD1F2500634E5F /* AgentTextClient.swift in Sources */,
 				D8BC17872EDD1F2500634E5F /* APIServerManager.swift in Sources */,
 				D8BC17882EDD1F2500634E5F /* AuthManager.swift in Sources */,
 				D8BC17892EDD1F2500634E5F /* FirebaseService.swift in Sources */,
 				D8BC178A2EDD1F2500634E5F /* GoogleCalendarService.swift in Sources */,
 				D8BC178B2EDD1F2500634E5F /* GoogleOAuthManager.swift in Sources */,
+				D8BC179C2EDFA1E600634E5F /* IntegrationTile.swift in Sources */,
 				D8BC178C2EDD1F2500634E5F /* MessageWatcherService.swift in Sources */,
 				D8BC17692EDD1F2500634E5F /* AgentInvocationService.swift in Sources */,
+				D8BC17982EDFA1DA00634E5F /* IntegrationModels.swift in Sources */,
+				D8BC179A2EDFA1DF00634E5F /* IntegrationsView.swift in Sources */,
 				D8BC176E2EDD1F2500634E5F /* NotionOAuthManager.swift in Sources */,
+				D8BC17922EDFA1CD00634E5F /* IntegrationGrid.swift in Sources */,
 				D8BC176F2EDD1F2500634E5F /* NotionService.swift in Sources */,
 				D8BC178D2EDD1F2500634E5F /* AgentTextApp.swift in Sources */,
 				19CBB5212ED939F2005A15DA /* AgentTextApp.swift in Sources */,
@@ -366,17 +417,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXResourcesBuildPhase section */
-		D8BC17672EDD1F2500634E5F /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				D8BC17662EDD1F2500634E5F /* GoogleService-Info.plist in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXResourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
 		D8BC832B2ED6CDC800634E5F /* Debug */ = {
